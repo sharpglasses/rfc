@@ -9,7 +9,6 @@
  */
 #include "rfc_conf.h"
 
-
 /*mem manager for rfc*/
 struct rfc_mem{
     void * (*talloc)(u_int32_t);                         /**<tmp mem alloc*/

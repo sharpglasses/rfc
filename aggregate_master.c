@@ -511,7 +511,7 @@ void debug_bmp(u_int32_t *bmp, u_int32_t start, u_int32_t end)
     fprintf(stderr, "\n");
     fprintf(stderr, "\n");
 }
-
+/*
 int main ()
 {
     int i;
@@ -642,7 +642,7 @@ int main ()
     return 0;
 }
 
-
+*/
 
 
 
