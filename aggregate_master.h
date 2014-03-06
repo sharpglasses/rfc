@@ -53,7 +53,7 @@ struct agg_master{
     u_int32_t bitmap_len;                   /** < normal bitmap  len(32bit/step) */
     u_int32_t bit_len;                      /** < bitmap len        (1bit/step)  */
 
-    struct agg_bitmap *mem;                 /** <tmp mem used for aggregated bitmap*/
+    struct agg_bitmap *mem;                 /** < tmp mem used for aggregated bitmap*/
 };
 
 #define ABMP_MASTER_SIZE    (sizeof(struct agg_master))
