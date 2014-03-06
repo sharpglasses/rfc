@@ -6,6 +6,8 @@
  */
 #include "aggregate_master.h"
 
+#include "stdlib.h" 
+
 /**
  * @brief alloc agg_master
  * @param[in] agg_alloc ptr used to alloc mem
@@ -73,7 +75,7 @@ struct  agg_table * alloc_agg_table(struct agg_master *agmp){
     list_add(&new_agg_table->table_link, &agmp->table_head);
     agmp->mem_cnt += ABMP_TABLE_SIZE;
     agmp->table_cnt++;
-    return 0;
+    return new_agg_table;
 };
 
 /**
@@ -181,7 +183,7 @@ struct agg_bitmap *bmp_to_abmp(struct agg_master *agmp, u_int32_t *bmp)
 	p2 = (u_int32_t *)(abmp + 1);
 	p3 = p2 + agmp->agg_bitmap_len;
 
-	for(i=0; i< agmp->agg_bitmap_len; i++)
+	for(i=0; i< agmp->bitmap_len; i++)
 	{
 		if(bmp[i])
 		{
@@ -375,7 +377,7 @@ void debug_agg_bitmap(struct agg_master *agmp, struct agg_bitmap *abmp){
     fprintf(stderr, "\n");
 
     fprintf(stderr, "bmp:");
-    for(i = 0; i < agmp->bitmap_len, i < 10; i++){
+    for(i = 0; i < abmp->bmp_cnt, i < 10; i++){
         fprintf(stderr, "%x ", *(p++));
     }
     fprintf(stderr, "\n");
@@ -425,6 +427,62 @@ void debug_agg_master(struct agg_master *agmp){
 
         fprintf(stderr, "\n");
 }
+
+/**
+ * @brief debug normal bitmap
+ * @param[in] bmp  ptr to the normal bitmap
+ * @param[in] start print start of the bitmap 32bit/step
+ * @param[in] end   print end of the bitmap 32bit/step
+ * 
+ */
+void debug_bmp(u_int32_t *bmp, u_int32_t start, u_int32_t end)
+{
+    u_int32_t i;
+    fprintf(stderr, "bmp:");
+    for(i = start; i < end; i++){
+            fprintf(stderr, "%x ", bmp[i]);   
+    }
+    fprintf(stderr, "\n");
+    fprintf(stderr, "\n");
+}
+
+
+int main ()
+{
+    int i;
+    u_int32_t bit_len = 32000;
+    struct agg_master *agmp;
+    struct agg_table  *agtp;
+    struct agg_bitmap *abmp;
+
+    u_int32_t *bmp = (u_int32_t *)malloc(bit_len/8);
+    bmp[1] = 0x01;
+    bmp[2] = 0x02;
+    bmp[3] = 0x03;
+    bmp[33] = 0x15;
+    debug_bmp(bmp, 0, 3);
+    debug_bmp(bmp, 500, 501);
+    agmp = alloc_agg_master(malloc, free, bit_len);
+    if(!agmp){
+        fprintf(stderr, "alloc agg master fail\n");
+        return -1;
+    }
+    agtp = alloc_agg_table(agmp);
+    if(!agtp){
+        fprintf(stderr, "alloc agg table fail\n");
+        return -1;
+    } 
+    abmp = bmp_to_abmp(agmp, bmp);
+    debug_agg_master(agmp);
+    return 0;
+}
+
+
+
+
+
+
+
 
 
 
