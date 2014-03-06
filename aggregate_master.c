@@ -89,7 +89,7 @@ void destory_agg_table(struct agg_master *agmp, struct agg_table *agtp)
     struct agg_bitmap *abmp_tmp;
     while(agtp->abmp_cnt){
             abmp_tmp = container_of(agtp->abmp_head.next, struct agg_bitmap, abmp_link);
-            remove_agg_bitmap(agtp, abmp_tmp);
+            remove_abmp(agtp, abmp_tmp);
             destory_agg_bitmap(agmp, abmp_tmp);
             agtp->abmp_cnt--;
     }
@@ -108,14 +108,17 @@ struct agg_bitmap *alloc_agg_bitmap(struct agg_master *agmp){
     struct agg_bitmap *abmp_tmp;
     u_int32_t x;
     abmp_tmp = (struct agg_bitmap*)agmp->mem;
+    fprintf(stderr, "in alloc_agg_bitmap\n");
+    debug_abmp(agmp, abmp_tmp);
     x = ABMP_HEAD_SIZE + 4*abmp_tmp->bmp_cnt + 4*agmp->agg_bitmap_len;
     abmp_tmp = (struct agg_bitmap *)agmp->agg_alloc(x);
-    if(abmp_tmp){
+    if(!abmp_tmp){
         return 0;
     }
     memcpy(abmp_tmp, agmp->mem, x);
     agmp->mem_cnt += x;
     agmp->abmp_cnt++;
+    return abmp_tmp;
 }
 
 /**
@@ -137,7 +140,7 @@ void destory_agg_bitmap(struct agg_master *agmp, struct agg_bitmap * abmp){
  * @param[in]  agtp  the table want to save this aggregated bitmap
  * @param[in]  abmp the ptr to the aggregated bitmap
  */
-void add_agg_bitmap(struct agg_table *agtp, struct agg_bitmap *abmp){
+void add_abmp(struct agg_table *agtp, struct agg_bitmap *abmp){
     list_add(&abmp->abmp_link, &agtp->abmp_head);
     agtp->abmp_cnt++;
 };
@@ -147,7 +150,7 @@ void add_agg_bitmap(struct agg_table *agtp, struct agg_bitmap *abmp){
  * @param[in]  agtp  the table want to save this aggregated bitmap
  * @param[in]  abmp the ptr to the aggregated bitmap
  */
-void add_agg_bitmap_tail(struct agg_table *agtp, struct agg_bitmap *abmp){
+void add_abmp_tail(struct agg_table *agtp, struct agg_bitmap *abmp){
     list_add_tail(&abmp->abmp_link, &agtp->abmp_head);
     agtp->abmp_cnt++;
 };
@@ -157,7 +160,7 @@ void add_agg_bitmap_tail(struct agg_table *agtp, struct agg_bitmap *abmp){
  * @param[in]  agtp  the aggregated bitmap in 
  * @param[in]  abmp the ptr to the aggregated bitmap
  */
-void remove_agg_bitmap(struct agg_table *agtp, struct agg_bitmap *abmp){
+void remove_abmp(struct agg_table *agtp, struct agg_bitmap *abmp){
     list_del(&abmp->abmp_link);
     agtp->abmp_cnt--;
 };
@@ -330,7 +333,6 @@ s_int32_t abmp_cmp(struct agg_master * agmp, struct agg_bitmap *abmp1, struct ag
                 if(p1[i] < p2[i]){
                         return -1;
                 }
-
 	}
 	return 0;
 }
@@ -343,7 +345,7 @@ s_int32_t abmp_cmp(struct agg_master * agmp, struct agg_bitmap *abmp1, struct ag
  * return ~((u_int32_t)0)  not found
  * return idx in agtp
  */
-u_int32_t search_in_table(struct agg_master *agmp, struct agg_table *agtp, struct agg_bitmap *abmp){
+u_int32_t search_abmp_in_table(struct agg_master *agmp, struct agg_table *agtp, struct agg_bitmap *abmp){
         struct agg_bitmap *abmp_tmp;
         struct list_head  *pos;
         u_int32_t i = 0;
@@ -362,7 +364,7 @@ u_int32_t search_in_table(struct agg_master *agmp, struct agg_table *agtp, struc
  * @param[in] abmp ptr to the agg_bitmap
  *
  */
-void debug_agg_bitmap(struct agg_master *agmp, struct agg_bitmap *abmp){
+void debug_abmp(struct agg_master *agmp, struct agg_bitmap *abmp){
     u_int32_t i;
     u_int32_t *p;
     fprintf(stderr, "agg_bitmap:");
@@ -370,14 +372,14 @@ void debug_agg_bitmap(struct agg_master *agmp, struct agg_bitmap *abmp){
 
     p = (u_int32_t*)(abmp + 1);
 
-    fprintf(stderr, "aggregated table:");
+    fprintf(stderr, "aggreated bmp::");
     for(i = 0; i < agmp->agg_bitmap_len; i++){
         fprintf(stderr, "%x ", *(p++));
     }
     fprintf(stderr, "\n");
 
     fprintf(stderr, "bmp:");
-    for(i = 0; i < abmp->bmp_cnt, i < 10; i++){
+    for(i = 0; i < abmp->bmp_cnt && i < 10; i++){
         fprintf(stderr, "%x ", *(p++));
     }
     fprintf(stderr, "\n");
@@ -391,17 +393,17 @@ void debug_agg_bitmap(struct agg_master *agmp, struct agg_bitmap *abmp){
  * @param[in] agtp ptr to the agg_table
  *
  */
-void debug_agg_table(struct agg_master *agmp, struct agg_table *agtp){
+void debug_agtp(struct agg_master *agmp, struct agg_table *agtp){
         struct agg_bitmap *abmp_tmp;
         struct list_head  *pos;
         u_int32_t i = 0;
-        fprintf(stderr, "agg_table:");
+        fprintf(stderr, "agg_table:\n");
         fprintf(stderr, "agg_table->abmp_cnt: %u\n", agtp->abmp_cnt);
         fprintf(stderr, "abmp items:\n");
         list_for_each(pos, &agtp->abmp_head){
             fprintf(stderr, "item %u\n", i++);
             abmp_tmp = container_of(pos, struct agg_bitmap, abmp_link);
-            debug_agg_bitmap(agmp, abmp_tmp);
+            debug_abmp(agmp, abmp_tmp);
         }
         fprintf(stderr, "\n");
 }
@@ -412,8 +414,8 @@ void debug_agg_table(struct agg_master *agmp, struct agg_table *agtp){
  * @param[in] agtp ptr to the agg_table
  *
  */
-void debug_agg_master(struct agg_master *agmp){
-        fprintf(stderr, "agg_master:");
+void debug_agmp(struct agg_master *agmp){
+        fprintf(stderr, "agg_master:\n");
         fprintf(stderr, "agg_master->table_cnt: %u\n",       agmp->table_cnt);
         fprintf(stderr, "agg_master->abmp_cnt: %u\n",        agmp->abmp_cnt);
         fprintf(stderr, "agg_master->mem_cnt: %u\n",         agmp->mem_cnt);
@@ -423,18 +425,12 @@ void debug_agg_master(struct agg_master *agmp){
         fprintf(stderr, "agg_master->bit_len       : %u( 1bit/step)\n",   agmp->bit_len);
 
         fprintf(stderr, "agg_bitmap in mem:\n");
-        debug_agg_bitmap(agmp, (struct agg_bitmap *)agmp->mem);
+        debug_abmp(agmp, (struct agg_bitmap *)agmp->mem);
 
         fprintf(stderr, "\n");
 }
 
-/**
- * @brief debug normal bitmap
- * @param[in] bmp  ptr to the normal bitmap
- * @param[in] start print start of the bitmap 32bit/step
- * @param[in] end   print end of the bitmap 32bit/step
- * 
- */
+/* code below used for test*/
 void debug_bmp(u_int32_t *bmp, u_int32_t start, u_int32_t end)
 {
     u_int32_t i;
@@ -452,8 +448,8 @@ int main ()
     int i;
     u_int32_t bit_len = 32000;
     struct agg_master *agmp;
-    struct agg_table  *agtp;
-    struct agg_bitmap *abmp;
+    struct agg_table  *agtp, *agtp1;
+    struct agg_bitmap *abmp, *abmp1;
 
     u_int32_t *bmp = (u_int32_t *)malloc(bit_len/8);
     bmp[1] = 0x01;
@@ -461,7 +457,7 @@ int main ()
     bmp[3] = 0x03;
     bmp[33] = 0x15;
     debug_bmp(bmp, 0, 3);
-    debug_bmp(bmp, 500, 501);
+    debug_bmp(bmp, 33, 35);
     agmp = alloc_agg_master(malloc, free, bit_len);
     if(!agmp){
         fprintf(stderr, "alloc agg master fail\n");
@@ -471,9 +467,52 @@ int main ()
     if(!agtp){
         fprintf(stderr, "alloc agg table fail\n");
         return -1;
-    } 
+    }
+
+    agtp1 = alloc_agg_table(agmp);
+    if(!agtp1){
+        fprintf(stderr, "alloc agg table1 fail\n");
+        return -1;
+    }
+    
+    fprintf(stderr, "convert bmp to abmp\n");
     abmp = bmp_to_abmp(agmp, bmp);
-    debug_agg_master(agmp);
+    
+    fprintf(stderr, "save abmp\n");
+    abmp = alloc_agg_bitmap(agmp);
+    if(!abmp){
+        fprintf(stderr, "alloc agg bitmap fail\n");
+        return -1;
+    }
+    debug_abmp(agmp, abmp);
+
+    fprintf(stderr, "add abmp to table\n");
+    add_abmp(agtp, abmp);
+    debug_agtp(agmp, agtp);
+    
+    fprintf(stderr, "set bmp1\n");
+    bmp[2] = 0x0; 
+    fprintf(stderr, "convert bmp to abmp\n");
+    abmp1 = bmp_to_abmp(agmp, bmp);
+
+    fprintf(stderr, "save abmp1\n");
+    abmp1 = alloc_agg_bitmap(agmp);
+    if(!abmp1){
+        fprintf(stderr, "alloc agg bitmap1 fail\n");
+        return -1;
+    }
+
+    fprintf(stderr, "add abmp1 to table\n");
+    add_abmp(agtp1, abmp1);
+    debug_agtp(agmp, agtp1);
+
+
+    debug_agmp(agmp);
+    //memset(bmp, 0, bit_len/8);
+    //abmp_to_bmp(agmp, abmp, bmp);
+    //debug_bmp(bmp, 0, 4);
+    //debug_bmp(bmp, 33, 35);
+
     return 0;
 }
 
