@@ -279,8 +279,6 @@ struct agg_bitmap *abmp_and(struct agg_master *agmp, struct agg_bitmap *abmp1, s
 	return abmp;
 }
 
-
-
 /**
  * @brief get aggregated bitmap by aggregated bitmap1 | aggregated bitmap2
  * @param[in] agmp ptr to the agg_master
@@ -514,7 +512,7 @@ void debug_bmp(u_int32_t *bmp, u_int32_t start, u_int32_t end)
     fprintf(stderr, "\n");
 }
 
-
+/*
 int main ()
 {
     int i;
@@ -645,7 +643,7 @@ int main ()
     return 0;
 }
 
-
+*/
 
 
 
