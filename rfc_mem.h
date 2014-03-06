@@ -18,7 +18,6 @@ struct rfc_mem{
     void   (*pdestory)(void *);                       /**<permanent mem free*/
 };
 
-
 /**
  * @brief init rfc mem manager
  * @brief talloc tmp memory alloc ptr 
@@ -33,12 +32,11 @@ static inline struct rfc_mem * init_rfc_mem(void *talloc(u_int32_t), void tdesto
         return 0;
     memset(mem_ret, 0 , sizeof(struct rfc_mem));
     mem_ret->talloc       = talloc;
-    mem_ret->tdestory        = tdestory;
+    mem_ret->tdestory     = tdestory;
     mem_ret->palloc = palloc;
     mem_ret->pdestory  = pdestory;
     return mem_ret;
 }
-
 
 /**
  * @brief deinit rfc mem manager

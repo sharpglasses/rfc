@@ -2,7 +2,7 @@
  * @brief rfc aggregate aggbitmap manager
  * @file aggregate_master.c
  * @author mhw
- * @date 2014/3/8
+ * @date 2014/3/10
  */
 #include "aggregate_master.h"
 

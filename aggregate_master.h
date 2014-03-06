@@ -3,8 +3,8 @@
 /**
  * @brief aggregatged bitmap manager
  * @file  aggregate_master.h
- * @author xiyan
- * @date 2014/3/09
+ * @author mhw
+ * @date 2014/3/10
  */
 
 #include "stdio.h"
