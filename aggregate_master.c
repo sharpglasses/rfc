@@ -108,8 +108,6 @@ struct agg_bitmap *alloc_agg_bitmap(struct agg_master *agmp){
     struct agg_bitmap *abmp_tmp;
     u_int32_t x;
     abmp_tmp = (struct agg_bitmap*)agmp->mem;
-    fprintf(stderr, "in alloc_agg_bitmap\n");
-    debug_abmp(agmp, abmp_tmp);
     x = ABMP_HEAD_SIZE + 4*abmp_tmp->bmp_cnt + 4*agmp->agg_bitmap_len;
     abmp_tmp = (struct agg_bitmap *)agmp->agg_alloc(x);
     if(!abmp_tmp){
@@ -236,26 +234,25 @@ u_int32_t *abmp_to_bmp(struct agg_master * agmp, struct agg_bitmap *abmp, u_int3
  * @param[in] abmp2 aggregated bitmap2
  * @return aggregated bitmap
  */
-struct agg_bitmap *abmp_or(struct agg_master *agmp, struct agg_bitmap *abmp1, struct agg_bitmap *abmp2)
+struct agg_bitmap *abmp_and(struct agg_master *agmp, struct agg_bitmap *abmp1, struct agg_bitmap *abmp2)
 {
 	u_int32_t i,j;
 	u_int32_t *p12,*p13;
 	u_int32_t *p22,*p23;
-	u_int32_t *abmp;
-	struct agg_bitmap *abmp_ret;
+	struct agg_bitmap *abmp;
 	u_int32_t *p2,*p3;
 	u_int32_t mask;
 	u_int32_t detail_bmp_count = 0;
 
         memset(agmp->mem, 0, ABMP_HEAD_SIZE + 4*agmp->agg_bitmap_len + 4*agmp->bitmap_len);
-	abmp = (u_int32_t *)agmp->mem;
+	abmp = (struct agg_bitmap *)agmp->mem;
 
 	p12 = (u_int32_t*)(abmp1 + 1);
 	p13 = p12 + agmp->agg_bitmap_len;
 	p22 = (u_int32_t*)(abmp2 + 1);
 	p23 = p22 + agmp->agg_bitmap_len;
 
-	p2 = (u_int32_t*)(abmp +1);
+	p2 = (u_int32_t*)(abmp + 1);
 	p3 = p2 + agmp->agg_bitmap_len;
 
 	for(i=0; i< agmp->agg_bitmap_len; i++)
@@ -281,9 +278,8 @@ struct agg_bitmap *abmp_or(struct agg_master *agmp, struct agg_bitmap *abmp1, st
 		p22++;
 
 	}
-	abmp_ret = (struct agg_bitmap*)abmp;
-	abmp_ret->bmp_cnt = detail_bmp_count;
-	return abmp_ret;
+	abmp->bmp_cnt = detail_bmp_count;
+	return abmp;
 }
 
 /**
@@ -372,14 +368,14 @@ void debug_abmp(struct agg_master *agmp, struct agg_bitmap *abmp){
 
     p = (u_int32_t*)(abmp + 1);
 
-    fprintf(stderr, "aggreated bmp::");
+    fprintf(stderr, "aggreated bmp:");
     for(i = 0; i < agmp->agg_bitmap_len; i++){
         fprintf(stderr, "%x ", *(p++));
     }
     fprintf(stderr, "\n");
 
     fprintf(stderr, "bmp:");
-    for(i = 0; i < abmp->bmp_cnt && i < 10; i++){
+    for(i = 0; i < abmp->bmp_cnt && i < 32; i++){
         fprintf(stderr, "%x ", *(p++));
     }
     fprintf(stderr, "\n");
@@ -491,7 +487,7 @@ int main ()
     debug_agtp(agmp, agtp);
     
     fprintf(stderr, "set bmp1\n");
-    bmp[2] = 0x0; 
+    bmp[2] = 0x1; 
     fprintf(stderr, "convert bmp to abmp\n");
     abmp1 = bmp_to_abmp(agmp, bmp);
 
@@ -506,6 +502,7 @@ int main ()
     add_abmp(agtp1, abmp1);
     debug_agtp(agmp, agtp1);
 
+    abmp1 =  abmp_and(agmp, abmp, abmp1);
 
     debug_agmp(agmp);
     //memset(bmp, 0, bit_len/8);

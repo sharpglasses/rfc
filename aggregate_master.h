@@ -69,7 +69,7 @@ extern void add_abmp_tail(struct agg_table *agtp, struct agg_bitmap *abmp);
 extern void remove_abmp(struct agg_table *agtp, struct agg_bitmap *abmp);
 extern struct agg_bitmap *bmp_to_abmp(struct agg_master *agmp, u_int32_t *bmp);
 extern u_int32_t *abmp_to_bmp(struct agg_master * agmp, struct agg_bitmap *abmp, u_int32_t *bmp);
-extern struct agg_bitmap *abmp_or(struct agg_master *agmp, struct agg_bitmap *abmp1, struct agg_bitmap *abmp2);
+extern struct agg_bitmap *abmp_and(struct agg_master *agmp, struct agg_bitmap *abmp1, struct agg_bitmap *abmp2);
 extern s_int32_t abmp_equal( struct agg_master * agmp, struct agg_bitmap *abmp1, struct agg_bitmap *abmp2);
 extern s_int32_t abmp_cmp(struct agg_master * agmp, struct agg_bitmap *abmp1, struct agg_bitmap *abmp2);
 extern u_int32_t search_abmp_in_table(struct agg_master *agmp, struct agg_table *agtp, struct agg_bitmap *abmp);
