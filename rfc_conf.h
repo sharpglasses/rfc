@@ -21,6 +21,10 @@ typedef unsigned int    u_int32_t;
 typedef unsigned short  u_int16_t;
 typedef unsigned char   u_int8_t;
 
+#define RFC_SUCCESS     0     
+#define RFC_ERROR       -1
+#define RFC_FAIL        -2
+
 
 
 
