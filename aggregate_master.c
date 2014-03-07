@@ -226,7 +226,7 @@ u_int32_t *abmp_to_bmp(struct agg_master * agmp, struct agg_bitmap *abmp, u_int3
 }
 
 /**
- * @brief get aggregated bitmap by aggregated bitmap1 | aggregated bitmap2
+ * @brief get aggregated bitmap by aggregated bitmap1 & aggregated bitmap2
  * @param[in] agmp ptr to the agg_master
  * @param[in] abmp1 aggregated bitmap1
  * @param[in] abmp2 aggregated bitmap2
@@ -269,7 +269,65 @@ struct agg_bitmap *abmp_and(struct agg_master *agmp, struct agg_bitmap *abmp1, s
 				p13++;
 			if(mask & *p22)
 				p23++;
+			mask <<= 1;
+		}
+		p12++;
+		p22++;
 
+	}
+	abmp->bmp_cnt = detail_bmp_count;
+	return abmp;
+}
+
+
+
+/**
+ * @brief get aggregated bitmap by aggregated bitmap1 | aggregated bitmap2
+ * @param[in] agmp ptr to the agg_master
+ * @param[in] abmp1 aggregated bitmap1
+ * @param[in] abmp2 aggregated bitmap2
+ * @return aggregated bitmap
+ */
+struct agg_bitmap *abmp_or(struct agg_master *agmp, struct agg_bitmap *abmp1, struct agg_bitmap *abmp2)
+{
+	u_int32_t i,j;
+	u_int32_t *p12,*p13;
+	u_int32_t *p22,*p23;
+	struct agg_bitmap *abmp;
+	u_int32_t *p2,*p3;
+	u_int32_t mask;
+	u_int32_t detail_bmp_count = 0;
+
+        memset(agmp->mem, 0, ABMP_HEAD_SIZE + 4*agmp->agg_bitmap_len + 4*agmp->bitmap_len);
+	abmp = (struct agg_bitmap *)agmp->mem;
+
+	p12 = (u_int32_t*)(abmp1 + 1);
+	p13 = p12 + agmp->agg_bitmap_len;
+	p22 = (u_int32_t*)(abmp2 + 1);
+	p23 = p22 + agmp->agg_bitmap_len;
+
+	p2 = (u_int32_t*)(abmp + 1);
+	p3 = p2 + agmp->agg_bitmap_len;
+
+	for(i=0; i< agmp->agg_bitmap_len; i++)
+	{
+		mask = 0x1;
+		for(j=0;j<32;j++)
+		{
+			if(mask & *p12){
+				*p3 |= *p13;
+				p13++;
+			}
+			if(mask & *p22){
+				*p3 |= *p23;
+				p23++;
+                        }
+			if((mask & (*p12)) || (mask & (*p22)))
+			{
+				*p2 |= mask;
+				detail_bmp_count++;
+				p3++;
+			}
 			mask <<= 1;
 		}
 		p12++;
@@ -505,7 +563,7 @@ int main ()
     debug_agtp(agmp, agtp);
     
     fprintf(stderr, "set bmp1\n");
-    bmp[2] = 0x1; 
+    bmp[2] = 0x2; 
     fprintf(stderr, "convert bmp to abmp\n");
     abmp1 = bmp_to_abmp(agmp, bmp);
 
@@ -538,6 +596,7 @@ int main ()
     i =  search_abmp_in_table(agmp, agtp, abmp1);
     fprintf(stderr, "get idx %u from search\n", i);
 
+    bmp[2] = 0x1; 
     bmp[33] = 0xff;
     abmp2 = bmp_to_abmp(agmp, bmp);
     abmp2 = alloc_agg_bitmap(agmp);
@@ -568,6 +627,10 @@ int main ()
     fprintf(stderr, "get idx %u from search\n", i);
 
     debug_agmp(agmp);
+
+    abmp1 = abmp_or(agmp, abmp1, abmp2);
+    fprintf(stderr, "abmp or \n");
+    debug_abmp(agmp, abmp1);
 
     fprintf(stderr, "destory abmp table\n");
     destory_agg_table(agmp, agtp);
