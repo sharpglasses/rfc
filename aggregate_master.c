@@ -431,11 +431,12 @@ u_int32_t search_abmp_in_table(struct agg_master *agmp, struct agg_table *agtp, 
 
 /**
  * @brief sort all item in agtp
+ * @param[in] agmp ptr to agg_master 
  * @param[in] agtp ptr to the agg_table 
  * return idx in agtp
- * @TODO insert sort for table in building
+ * TODO BUGS IN insert_sort_agtp
  */
-void insert_sort_agtp(struct agg_table *agtp){
+void insert_sort_agtp(struct agg_master *agmp, struct agg_table *agtp){
     struct agg_bitmap *abmp_head;
     struct agg_bitmap *abmp;
     struct agg_bitmap *abmp_tmp;
@@ -444,22 +445,32 @@ void insert_sort_agtp(struct agg_table *agtp){
         return;
     }
     agtp->abmp_cnt = 1;
-    abmp_head = container_of(agtp->abmp_head->next, struct agg_bitmap, abmp_link);
+    abmp_head = container_of(agtp->abmp_head.next, struct agg_bitmap, abmp_link);
+    remove_abmp(agtp, abmp_head);
     while(!list_empty(&agtp->abmp_head)){
-            abmp = remove_abmp(agtp, abmp);
+            abmp = container_of(agtp->abmp_head.next, struct agg_bitmap, abmp_link);
+            remove_abmp(agtp, abmp);
+
             if(abmp_cmp(agmp, abmp, abmp_head) < 0){
                     list_add_tail(&abmp->abmp_link, &abmp_head->abmp_link);
-                    abmp_head = abmp;
+                    abmp_head = abmp;               
             }else{
-                    list_for_each(pos, &agtp->abmp_head){
+                    list_for_each(pos, &abmp_head->abmp_link){
                         abmp_tmp = container_of(pos, struct agg_bitmap, abmp_link);
                         if(abmp_cmp(agmp, abmp_tmp, abmp) > 0){
                             break;
                         }
                     }
+                    if(pos == &abmp_head->abmp_link){  
+                            list_add_tail(&abmp->abmp_link,  &abmp_head->abmp_link);
+                            abmp_head = abmp;
+                    }else{                  
+                            list_add_tail(&abmp->abmp_link, &abmp_tmp->abmp_link);
+                    }
             }
-        agtp->abmp_cnt++;
+        agtp->abmp_cnt++;   
     }
+    list_add_tail(&agtp->abmp_head, &abmp_head->abmp_link);
 }
 
 
@@ -536,7 +547,9 @@ void debug_agmp(struct agg_master *agmp){
         fprintf(stderr, "\n");
 }
 
-/* code below used for test*/
+/* code below used for test
+ *
+ *
 void debug_bmp(u_int32_t *bmp, u_int32_t start, u_int32_t end)
 {
     u_int32_t i;
@@ -549,10 +562,6 @@ void debug_bmp(u_int32_t *bmp, u_int32_t start, u_int32_t end)
 }
 
 
-
-
-
-/*
 int main ()
 {
     int i;
@@ -642,6 +651,11 @@ int main ()
     i =  search_abmp_in_table(agmp, agtp, abmp2);
     fprintf(stderr, "get idx %u from search\n", i);
     add_abmp(agtp, abmp2);
+
+    fprintf(stderr, "insert sort table\n"); 
+    insert_sort_agtp(agmp, agtp);
+    debug_agtp(agmp, agtp);
+
     i =  search_abmp_in_table(agmp, agtp, abmp2);
     fprintf(stderr, "get idx %u from search\n", i);
     debug_agtp(agmp, agtp);
@@ -684,7 +698,6 @@ int main ()
 }
 
 */
-
 
 
 

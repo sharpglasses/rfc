@@ -75,6 +75,7 @@ extern s_int32_t abmp_equal( struct agg_master * agmp, struct agg_bitmap *abmp1,
 extern s_int32_t abmp_cmp(struct agg_master * agmp, struct agg_bitmap *abmp1, struct agg_bitmap *abmp2);
 extern u_int32_t search_abmp_in_table(struct agg_master *agmp, struct agg_table *agtp, struct agg_bitmap *abmp);
 extern void debug_abmp(struct agg_master *agmp, struct agg_bitmap *abmp);
+void insert_sort_agtp(struct agg_master *agmp, struct agg_table *agtp);
 extern void debug_agtp(struct agg_master *agmp, struct agg_table *agtp);
 extern void debug_agmp(struct agg_master *agmp);
 
