@@ -206,6 +206,23 @@ s_int32_t traversal_in_lstmp(struct lst_map *lstmp, void *input, void *output, s
 }
 
 
+/**
+ * @brief code for debug below
+ *
+ *
+ */
+
+
+
+/*
+s_int32_t lst_callback(u_int32_t i, struct lst_map *lstmp, struct lst_node *lstnp, void *input, void *output){
+    //debug_lstmp(lstmp);
+    fprintf(stderr, "get idx %u from call\n", i);
+    debug_lstnp(lstnp);
+    return 0;
+}
+
+
 int main()
 {
     struct lst_map *lstmp = alloc_lstmp(malloc, free);
@@ -227,8 +244,9 @@ int main()
     debug_lstmp(lstmp);
     del_lstmp_node(lstmp, lstnp);
     debug_lstmp(lstmp);
+    traversal_in_lstmp(lstmp, NULL, NULL, lst_callback);
     destory_lstmp(lstmp);
 return 0;
 }
 
-
+*/
