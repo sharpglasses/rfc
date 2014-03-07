@@ -499,6 +499,7 @@ static rb_node_t* rb_erase_rebalance(rb_node_t *node, rb_node_t *parent, rb_node
 
 //°Ë¡¢²âÊÔÓÃÀı
 //Ö÷º¯Êı
+/*
 int main()
 {
     u_int32_t i, count = 100;
@@ -508,7 +509,7 @@ int main()
     for (i = 1; i < count; ++i)
     {
         key = rand() % count;
-        if ((root = rb_insert(key, &i, root)))
+        if ((root = rb_insert(key, i, root)))
         {
             printf("[i = %d] insert key %d success!\n", i, key);
         }
@@ -541,4 +542,4 @@ int main()
     }
     return 0;
 }
-
+*/
