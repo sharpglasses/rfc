@@ -15,7 +15,7 @@
 #include "conf.h"
 
 typedef u_int32_t rb_key_t;
-typedef void*     rb_data_t;
+typedef u_int32_t rb_data_t;
 
 typedef enum color
 {
