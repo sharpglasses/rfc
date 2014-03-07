@@ -5,7 +5,7 @@
  * @brief normal conf file
  * @file conf.h
  * @author MHW
- * @date 3/11
+ * @date 03/11/2014
  *
  */
 #include <stdio.h>

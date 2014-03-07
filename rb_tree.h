@@ -4,8 +4,12 @@
  * @brief rb_tree copy from july
  * @file rb_tree.h
  * @author july
- * @date
+ * @date 03/11/2014
  * @note july's blog from csdn 
+ *       change:
+ *       1.key int->uint   
+ *       2.val int->void *
+ *
  */
 
 #include "conf.h"

@@ -2,7 +2,7 @@
  * @brief STL map 
  * @file  map.c
  * @author mhw
- * @date 2014/3/11
+ * @date 03/11/2014
  * @note rb-tree depend
  */
 
@@ -14,4 +14,3 @@ struct pair{
 };
 
 
-extern 
