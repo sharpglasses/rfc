@@ -15,6 +15,7 @@ typedef struct rb_pair{
     void * second;      /** <value in map*/
 }pair_t;
 
+
 struct rb_map{
     rb_node_t * root;   /**<red black tree as map*/
 }rb_map_t;
