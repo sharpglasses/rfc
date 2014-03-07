@@ -50,8 +50,6 @@ void destory_agg_master(struct agg_master *agmp){
         while(agmp->table_cnt){
                 agg_table_ptr = container_of(agmp->table_head.next, struct agg_table, table_link);
                 destory_agg_table(agmp, agg_table_ptr);
-                list_del(&agg_table_ptr->table_link);
-                agmp->table_cnt--;
         }
         agmp->agg_destory(agmp->mem);
         agmp->agg_destory(agmp);
@@ -91,8 +89,8 @@ void destory_agg_table(struct agg_master *agmp, struct agg_table *agtp)
             abmp_tmp = container_of(agtp->abmp_head.next, struct agg_bitmap, abmp_link);
             remove_abmp(agtp, abmp_tmp);
             destory_agg_bitmap(agmp, abmp_tmp);
-            agtp->abmp_cnt--;
     }
+    list_del(&agtp->table_link);
     agmp->agg_destory(agtp);
     agmp->mem_cnt -= ABMP_TABLE_SIZE;
     agmp->table_cnt--;
@@ -315,20 +313,39 @@ s_int32_t abmp_equal( struct agg_master * agmp, struct agg_bitmap *abmp1, struct
  *          -1 abmp1 <  abmp2
  *          0  abmp1 == abmp2
  */
-s_int32_t abmp_cmp(struct agg_master * agmp, struct agg_bitmap *abmp1, struct agg_bitmap *abmp2)
+s_int32_t abmp_cmp(struct agg_master *agmp, struct agg_bitmap *abmp1, struct agg_bitmap *abmp2)
 {
-	u_int32_t i,count, *p1, *p2;
-	p1 = (u_int32_t*)(abmp1 + 1);
-	p2 = (u_int32_t*)(abmp2 + 1);
+	u_int32_t i,j;
+	u_int32_t *p12,*p13;
+	u_int32_t *p22,*p23;
+	u_int32_t mask;
 
-	count = agmp->agg_bitmap_len + abmp1->bmp_cnt;
-	for(i= 0; i<count; i++){
-		if(p1[i] > p2[i]){
-			return 1;
-                }
-                if(p1[i] < p2[i]){
-                        return -1;
-                }
+	p12 = (u_int32_t*)(abmp1 + 1);
+	p13 = p12 + agmp->agg_bitmap_len;
+
+	p22 = (u_int32_t*)(abmp2 + 1);
+	p23 = p22 + agmp->agg_bitmap_len;
+
+	for(i=0; i< agmp->agg_bitmap_len; i++)
+	{
+	        if(*p12 != *p22){
+	            return (*p12 > *p22 ? 1 : -1);
+	        }
+		mask = 0x1;
+		for(j=0;j<32;j++)
+		{
+		    if(mask & (*p12) & (*p22)){
+                        if(*p13 != *p23){
+                            return (*p13 > *p23 ? 1 : -1);
+                        }
+		        p13++;
+		        p23++;
+		    }
+		    mask<<= 1;
+		}
+		p12++;
+		p22++;
+
 	}
 	return 0;
 }
@@ -350,6 +367,7 @@ u_int32_t search_abmp_in_table(struct agg_master *agmp, struct agg_table *agtp, 
             if(!abmp_equal(agmp, abmp_tmp, abmp)){
                             return i;
             }
+            i++;
        }
        return ~((u_int32_t)0);
 }
@@ -445,7 +463,7 @@ int main ()
     u_int32_t bit_len = 32000;
     struct agg_master *agmp;
     struct agg_table  *agtp, *agtp1;
-    struct agg_bitmap *abmp, *abmp1;
+    struct agg_bitmap *abmp, *abmp1, *abmp2;
 
     u_int32_t *bmp = (u_int32_t *)malloc(bit_len/8);
     bmp[1] = 0x01;
@@ -502,9 +520,60 @@ int main ()
     add_abmp(agtp1, abmp1);
     debug_agtp(agmp, agtp1);
 
+    fprintf(stderr, "and bitmap, save abmp to table\n");
     abmp1 =  abmp_and(agmp, abmp, abmp1);
+    abmp1 = alloc_agg_bitmap(agmp);
+    add_abmp(agtp, abmp1);
+    debug_agtp(agmp, agtp);
+
+    i = abmp_equal(agmp, abmp1, agmp->mem);
+    fprintf(stderr, "get %d from equal\n", i);
+
+    i = abmp_equal(agmp, abmp1, abmp);
+    fprintf(stderr, "get %d from equal\n", i);
+
+    i =  search_abmp_in_table(agmp, agtp, abmp);
+    fprintf(stderr, "get idx %u from search\n", i);
+
+    i =  search_abmp_in_table(agmp, agtp, abmp1);
+    fprintf(stderr, "get idx %u from search\n", i);
+
+    bmp[33] = 0xff;
+    abmp2 = bmp_to_abmp(agmp, bmp);
+    abmp2 = alloc_agg_bitmap(agmp);
+
+    i =  search_abmp_in_table(agmp, agtp, abmp2);
+    fprintf(stderr, "get idx %u from search\n", i);
+    add_abmp(agtp, abmp2);
+    i =  search_abmp_in_table(agmp, agtp, abmp2);
+    fprintf(stderr, "get idx %u from search\n", i);
+    debug_agtp(agmp, agtp);
+    remove_abmp(agtp, abmp1);
+    fprintf(stderr, "move bmp from agtp to agtp1\n");
+    add_abmp(agtp1, abmp1);
+
+    debug_agtp(agmp, agtp);
+    debug_agtp(agmp, agtp1);
+
+    i = abmp_cmp(agmp, abmp, abmp1);
+    fprintf(stderr, "get %d from cmp\n", i);
+
+    i = abmp_cmp(agmp, abmp1, abmp);
+    fprintf(stderr, "get %d from cmp\n", i);
+
+    i = abmp_cmp(agmp, abmp, abmp);
+    fprintf(stderr, "get %d from cmp\n", i);
+
+    i =  search_abmp_in_table(agmp, agtp, abmp);
+    fprintf(stderr, "get idx %u from search\n", i);
 
     debug_agmp(agmp);
+
+    fprintf(stderr, "destory abmp table\n");
+    destory_agg_table(agmp, agtp);
+    debug_agmp(agmp);
+    debug_agtp(agmp, agtp1);
+    destory_agg_master(agmp);
     //memset(bmp, 0, bit_len/8);
     //abmp_to_bmp(agmp, abmp, bmp);
     //debug_bmp(bmp, 0, 4);
