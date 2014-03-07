@@ -501,7 +501,6 @@ static rb_node_t* rb_erase_rebalance(rb_node_t *node, rb_node_t *parent, rb_node
 
 //°Ë¡¢²âÊÔÓÃÀı
 //Ö÷º¯Êı
-/*
 int main()
 {
     s_int32_t i, count = 100;
@@ -545,4 +544,3 @@ int main()
     return 0;
 }
 
-*/

@@ -1,21 +1,16 @@
 #ifndef  RB_TREE_H_
-#define RB_TREE_H_
+#define  RB_TREE_H_
 /**
  * @brief rb_tree copy from july
  * @file rb_tree.h
  * @author july
  * @date
  * @note july's blog from csdn 
+ * @TODO 改写红黑树键值属性
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "conf.h"
 
-typedef int s_int32_t ;
-
-
-typedef s_int32_t key_t;
 typedef void *data_t;
 
 typedef enum color

@@ -4,21 +4,11 @@
  * @brief aggregatged bitmap manager
  * @file  aggregate_master.h
  * @author mhw
- * @date 2014/3/10
+ * @date 2014/3/11
  */
 
-#include "stdio.h"
-#include "string.h"
+#include "conf.h"
 #include "list.h"
-
-typedef signed int      s_int32_t;
-typedef signed short    s_int16_t;
-typedef signed char     s_int8_t;
-
-typedef unsigned int    u_int32_t;
-typedef unsigned short  u_int16_t;
-typedef unsigned char   u_int8_t;
-
 
 struct agg_bitmap{
     struct      list_head abmp_link;

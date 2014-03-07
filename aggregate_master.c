@@ -549,7 +549,7 @@ void debug_agmp(struct agg_master *agmp){
 
 /* code below used for test
  *
- *
+ */
 void debug_bmp(u_int32_t *bmp, u_int32_t start, u_int32_t end)
 {
     u_int32_t i;
@@ -697,7 +697,6 @@ int main ()
     return 0;
 }
 
-*/
 
 
 
