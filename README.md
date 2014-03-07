@@ -1,6 +1,6 @@
 <html>
 
-#As a node 
+#As a note in building 
 <ol>
 <li>table sort in aggregate master error </li>
 <li>special method for destory rb-tree   </li>
