@@ -9,7 +9,7 @@
  */
 
 
-static rb_node_t *rb_new_node(rb_key_t key, rb_data_t data);
+static rb_node_t *rb_new_node(rb_tree_t *rbp, rb_key_t key, rb_data_t data);
 static rb_node_t* rb_rotate_left(rb_node_t* node, rb_node_t* root);
 static rb_node_t* rb_rotate_right(rb_node_t* node, rb_node_t* root);
 static rb_node_t* rb_search_auxiliary(rb_key_t key, rb_node_t* root, rb_node_t** save);
@@ -17,9 +17,29 @@ static rb_node_t * rb_insert_rebalance(rb_node_t *node, rb_node_t *root);
 static rb_node_t* rb_erase_rebalance(rb_node_t *node, rb_node_t *parent, rb_node_t *root);
 
 
-static rb_node_t *rb_new_node(rb_key_t key, rb_data_t data)
+
+rb_tree_t * alloc_rbp(void * (*rb_alloc)(u_int32_t), void (*rb_destory)(void *)){
+        rb_tree_t *rbp = (struct rb_tree*)rb_alloc(sizeof(struct rb_tree));
+        if(!rbp){
+            return 0;
+        }
+        rbp->rb_alloc   = rb_alloc;
+        rbp->rb_destory = rb_destory;
+        rbp->root       = 0;
+        return rbp;
+}
+
+void destory_rbp(rb_tree_t *rbp){
+        while(rbp->root){
+            rb_erase(rbp, rbp->root->key);
+        }
+        rbp->rb_destory(rbp);
+}
+
+
+static rb_node_t *rb_new_node(rb_tree_t * rbp, rb_key_t key, rb_data_t data)
 {
-    rb_node_t *node = (rb_node_t *)malloc(sizeof(struct rb_node));
+    rb_node_t *node = (rb_node_t *)rbp->rb_alloc(sizeof(struct rb_node));
     if(!node){
         fprintf(stderr, "malloc error\n");   
         return 0;
@@ -143,18 +163,19 @@ static rb_node_t* rb_search_auxiliary(rb_key_t key, rb_node_t* root, rb_node_t**
 }
 
 //返回上述rb_search_auxiliary查找结果
-rb_node_t* rb_search(rb_key_t key, rb_node_t* root)
+rb_node_t* rb_search(rb_tree_t *rbp, rb_key_t key)
 {
-    return rb_search_auxiliary(key, root, NULL);
+    return rb_search_auxiliary(key, rbp->root, NULL);
 }
 
 
 //四、红黑树的插入
 //---------------------------------------------------------
 //红黑树的插入结点
-rb_node_t* rb_insert(rb_key_t key, rb_data_t data, rb_node_t* root)
+rb_node_t* rb_insert(rb_tree_t *rbp, rb_key_t key, rb_data_t data)
 {
-    rb_node_t *parent = NULL, *node;
+    rb_node_t *parent = NULL, *node, *root;
+    root = rbp->root;
 
     parent = NULL;
     if ((node = rb_search_auxiliary(key, root, &parent)))  //调用rb_search_auxiliary找到插入结点的地方
@@ -163,7 +184,7 @@ rb_node_t* rb_insert(rb_key_t key, rb_data_t data, rb_node_t* root)
         return root;
     }
 
-    node = rb_new_node(key, data);  //分配结点
+    node = rb_new_node(rbp, key, data);  //分配结点
     node->parent = parent;
     node->left = node->right = NULL;
     node->color = RED;
@@ -270,10 +291,12 @@ static rb_node_t * rb_insert_rebalance(rb_node_t *node, rb_node_t *root)
 //六、红黑树的删除
 //------------------------------------------------------------
 //红黑树的删除结点
-rb_node_t* rb_erase(rb_key_t key, rb_node_t *root)
+rb_node_t* rb_erase(rb_tree_t *rbp, rb_key_t key)
 {
-    rb_node_t *child, *parent, *old, *left, *node;
+    
+    rb_node_t *child, *parent, *old, *left, *node,  *root;
     color_t color;
+    root = rbp->root;
 
     if (!(node = rb_search_auxiliary(key, root, NULL)))  //调用rb_search_auxiliary查找要删除的结点
     {
@@ -380,7 +403,7 @@ rb_node_t* rb_erase(rb_key_t key, rb_node_t *root)
         }
     }
 
-    free(old);
+    rbp->rb_destory(old);
 
     if (color == BLACK)
     {
@@ -499,17 +522,21 @@ static rb_node_t* rb_erase_rebalance(rb_node_t *node, rb_node_t *parent, rb_node
 
 //八、测试用例
 //主函数
-/*
 int main()
 {
     u_int32_t i, count = 100;
     rb_key_t key;
-    rb_node_t* root = NULL, *node = NULL;
+    rb_tree_t *rbp;
+    rb_node_t *root, *node = NULL;
     srand(time(NULL));
+    rbp = alloc_rbp(malloc, free);
+    if(!rbp){
+        fprintf(stderr,"alloc rbp fail\n");
+    }
     for (i = 1; i < count; ++i)
     {
         key = rand() % count;
-        if ((root = rb_insert(key, i, root)))
+        if ((root = rb_insert(rbp, key, i)))
         {
             printf("[i = %d] insert key %d success!\n", i, key);
         }
@@ -519,7 +546,7 @@ int main()
             exit(-1);
         }
 
-        if ((node = rb_search(key, root)))
+        if ((node = rb_search(rbp, key)))
         {
             printf("[i = %d] search key %d success!\n", i, key);
         }
@@ -530,7 +557,7 @@ int main()
         }
         if (!(i % 10))
         {
-            if ((root = rb_erase(key, root)))
+            if ((root = rb_erase(rbp, key)))
             {
                 printf("[i = %d] erase key %d success\n", i, key);
             }
@@ -542,4 +569,3 @@ int main()
     }
     return 0;
 }
-*/

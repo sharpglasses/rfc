@@ -61,7 +61,7 @@ struct lst_node *search_in_lstmp(struct lst_map *lstmp, u_int32_t key)
  * @return -1 alloc space fail
  * @return  0  success
  */
-s_int32_t set_lstmp_val(struct lst_map *lstmp, u_int32_t key, u_int32_t val)
+s_int32_t set_lstmp(struct lst_map *lstmp, u_int32_t key, u_int32_t val)
 {
     struct lst_node *lstnp = search_in_lstmp(lstmp, key);
     if(!lstnp){
@@ -227,10 +227,10 @@ int main()
 {
     struct lst_map *lstmp = alloc_lstmp(malloc, free);
     struct lst_node *lstnp;
-    fprintf(stderr, "set ret %d\n", set_lstmp_val(lstmp, 0, 1));
-    fprintf(stderr, "set ret %d\n", set_lstmp_val(lstmp, 1, 1));
-    fprintf(stderr, "set ret %d\n", set_lstmp_val(lstmp, 2, 2));
-    fprintf(stderr, "set ret %d\n", set_lstmp_val(lstmp, 1, 0));
+    fprintf(stderr, "set ret %d\n", set_lstmp(lstmp, 0, 1));
+    fprintf(stderr, "set ret %d\n", set_lstmp(lstmp, 1, 1));
+    fprintf(stderr, "set ret %d\n", set_lstmp(lstmp, 2, 2));
+    fprintf(stderr, "set ret %d\n", set_lstmp(lstmp, 1, 0));
     lstnp = search_in_lstmp(lstmp, 6);
     if(!lstnp){
         fprintf(stderr, "not found\n");

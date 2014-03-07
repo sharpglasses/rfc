@@ -10,27 +10,27 @@
 
 /**
  * @brief init rfc parse 
- * @param[in] rfc_mem_param memory manager
+ * @param[in] memp memory manager
  * @param[in] condition code size size(bytes)
  * return ptr to rfc_parse
  */
 
-struct rfc_parse *init_rfc_parse(struct rfc_mem *rfc_mem_param, u_int32_t size){
-    struct rfc_parse * rfc_parse_ret = (struct rfc_parse *)rfc_mem_param->permanent_alloc(sizeof(struct rfc_parse));
+struct rfc_parse *init_rfc_parse(struct rfc_mem *memp, u_int32_t size){
+    struct rfc_parse * rfc_parse_ret = (struct rfc_parse *)memp->palloc(sizeof(struct rfc_parse));
     if(!rfc_parse_ret)
             return 0;
-    rfc_parse_ret->rfc_mem_manager = rfc_mem_param;
+    rfc_parse_ret->rfc_mem_manager = memp;
     rfc_parse_ret->size = size;
 }
 
 /**
  * @brief destory rfc parse
- * @param[in] rfc_parse_param ptr to rfc parse
+ * @param[in] parsp ptr to rfc parse
  * @return 0;
  *
  */
-s_int32_t deinit_rfc_parse(struct rfc_parse * rfc_parse_param){
-    rfc_parse_param->rfc_mem_manager->permanent_free(rfc_parse_param);
+s_int32_t deinit_rfc_parse(struct rfc_parse * parsp){
+    parsp->rfc_mem_manager->pdestory(parsp);
     return 0;
 }
 

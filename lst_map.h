@@ -31,10 +31,10 @@ struct lst_node{
 };
 
 
-extern struct lst_map * init_lstmp(void * (*lst_alloc)(u_int32_t), void (*lst_destory)(void *));
+extern struct lst_map * alloc_lstmp(void * (*lst_alloc)(u_int32_t), void (*lst_destory)(void *));
 extern void destory_lstmp(struct lst_map *lstmp);
 extern struct lst_node *search_in_lstmp(struct lst_map *lstmp, u_int32_t key);
-extern s_int32_t set_lstmp_val(struct lst_map *lstmp, u_int32_t key, u_int32_t val);
+extern s_int32_t set_lstmp(struct lst_map *lstmp, u_int32_t key, u_int32_t val);
 void  del_lstmp_node(struct lst_map *lstmp, struct lst_node* lstnp);
 extern s_int32_t traversal_in_lstmp(struct lst_map *lstmp, void *input, void *output, s_int32_t (*callback)(u_int32_t i, struct lst_map *, struct lst_node*, void *, void *));
 extern void debug_lstnp(struct lst_node *lstnp);
