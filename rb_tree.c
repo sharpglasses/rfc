@@ -9,15 +9,15 @@
  */
 
 
-static rb_node_t *rb_new_node(key_t key, data_t data);
+static rb_node_t *rb_new_node(rb_key_t key, rb_data_t data);
 static rb_node_t* rb_rotate_left(rb_node_t* node, rb_node_t* root);
 static rb_node_t* rb_rotate_right(rb_node_t* node, rb_node_t* root);
-static rb_node_t* rb_search_auxiliary(key_t key, rb_node_t* root, rb_node_t** save);
+static rb_node_t* rb_search_auxiliary(rb_key_t key, rb_node_t* root, rb_node_t** save);
 static rb_node_t * rb_insert_rebalance(rb_node_t *node, rb_node_t *root);
 static rb_node_t* rb_erase_rebalance(rb_node_t *node, rb_node_t *parent, rb_node_t *root);
 
 
-static rb_node_t *rb_new_node(key_t key, data_t data)
+static rb_node_t *rb_new_node(rb_key_t key, rb_data_t data)
 {
     rb_node_t *node = (rb_node_t *)malloc(sizeof(struct rb_node));
     if(!node){
@@ -113,20 +113,18 @@ static rb_node_t* rb_rotate_right(rb_node_t* node, rb_node_t* root)
 //rb_search_auxiliary：查找
 //rb_node_t* rb_search：返回找到的结点
 //----------------------------------------------------
-static rb_node_t* rb_search_auxiliary(key_t key, rb_node_t* root, rb_node_t** save)
+static rb_node_t* rb_search_auxiliary(rb_key_t key, rb_node_t* root, rb_node_t** save)
 {
     rb_node_t *node = root, *parent = NULL;
-    s_int32_t ret;
 
     while (node)
     {
         parent = node;
-        ret = node->key - key;
-        if (0 < ret)
+        if (node->key > key)
         {
             node = node->left;
         }
-        else if (0 > ret)
+        else if (node->key < key)
         {
             node = node->right;
         }
@@ -145,7 +143,7 @@ static rb_node_t* rb_search_auxiliary(key_t key, rb_node_t* root, rb_node_t** sa
 }
 
 //返回上述rb_search_auxiliary查找结果
-rb_node_t* rb_search(key_t key, rb_node_t* root)
+rb_node_t* rb_search(rb_key_t key, rb_node_t* root)
 {
     return rb_search_auxiliary(key, root, NULL);
 }
@@ -154,7 +152,7 @@ rb_node_t* rb_search(key_t key, rb_node_t* root)
 //四、红黑树的插入
 //---------------------------------------------------------
 //红黑树的插入结点
-rb_node_t* rb_insert(key_t key, data_t data, rb_node_t* root)
+rb_node_t* rb_insert(rb_key_t key, rb_data_t data, rb_node_t* root)
 {
     rb_node_t *parent = NULL, *node;
 
@@ -272,7 +270,7 @@ static rb_node_t * rb_insert_rebalance(rb_node_t *node, rb_node_t *root)
 //六、红黑树的删除
 //------------------------------------------------------------
 //红黑树的删除结点
-rb_node_t* rb_erase(key_t key, rb_node_t *root)
+rb_node_t* rb_erase(rb_key_t key, rb_node_t *root)
 {
     rb_node_t *child, *parent, *old, *left, *node;
     color_t color;
@@ -503,8 +501,8 @@ static rb_node_t* rb_erase_rebalance(rb_node_t *node, rb_node_t *parent, rb_node
 //主函数
 int main()
 {
-    s_int32_t i, count = 100;
-    key_t key;
+    u_int32_t i, count = 100;
+    rb_key_t key;
     rb_node_t* root = NULL, *node = NULL;
     srand(time(NULL));
     for (i = 1; i < count; ++i)
