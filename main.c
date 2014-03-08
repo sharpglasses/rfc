@@ -1,5 +1,4 @@
-//#include "map.h"
-
+#include "map.h"
 #include "rfc_mem.h"
 
 int main()

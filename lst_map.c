@@ -231,7 +231,7 @@ s_int32_t lst_callback(u_int32_t i, struct lst_map *lstmp, struct lst_node *lstn
     return 0;
 }
 
-
+/*
 int main()
 {
     struct lst_map *lstmp = alloc_lstmp(malloc, free);
@@ -260,4 +260,4 @@ int main()
     destory_lstmp(lstmp);
 return 0;
 }
-
+*/

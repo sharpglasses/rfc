@@ -36,8 +36,9 @@ struct ces_entry{
 };
 
 
-#define cbm_table agg_table
-#define cbm_item  agg_bitmap
+//rb_map as key-val map
+
+//agg master work as cbm table
 
 struct slot_table{
     u_int32_t slot_cnt;
