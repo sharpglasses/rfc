@@ -6,23 +6,18 @@
  * @file rfc_build.h
  * @author mhw
  * @note 
- * @date 2014/3/3
+ * @date 2014/3/11
  *
  */
-
 #include "rfc_structure.h"
 #include "rfc_parse.h"
 
-
-
-
 struct rfc_build{
-    struct rfc_mem      *rfc_mem_manager;
-    struct rfc_bitmap   *rfc_bitmap_manager;
-    struct rfc_parse    *rfc_parse_manager;
-    struct slot_table   *slot_table_manager;
+    struct rfc_mem      *memp;
+    struct agg_master   *agmp;
+    struct rfc_parse    *parsp;
+    struct slot_table   *slotp;
 };
-
 
 struct phase2_element{
     struct ces_table *ces_table_ptr;

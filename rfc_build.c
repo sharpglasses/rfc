@@ -19,17 +19,17 @@
  */
 struct rfc_build *init_rfc_build(struct rfc_mem *rfc_mem_param, struct rfc_bitmap *rfc_bitmap_param, struct rfc_parse *rfc_parse_param)
 {
-    struct rfc_build *ret_rfc_build = (struct rfc_build *)rfc_mem_param->tmp_alloc(sizeof(struct rfc_build));
+    struct rfc_build *ret_rfc_build = (struct rfc_build *)rfc_mem_param->talloc(sizeof(struct rfc_build));
     if(!ret_rfc_build)
         goto rfc_build_fail;
     memset(ret_rfc_build, 0 , sizeof(struct rfc_build));
 
-    ret_rfc_build->slot_table_manager = (struct slot_table *)rfc_mem_param->tmp_alloc(sizeof(struct slot_table));
+    ret_rfc_build->slot_table_manager = (struct slot_table *)rfc_mem_param->talloc(sizeof(struct slot_table));
     if(!ret_rfc_build->slot_table_manager)
         goto rfc_slot_fail;
     memset(ret_rfc_build->slot_table_manager, 0 , sizeof(struct slot_table));
 
-    ret_rfc_build->slot_table_manager->valid = (void **)rfc_mem_param->tmp_alloc(sizeof(void *) * rfc_parse_param->size);
+    ret_rfc_build->slot_table_manager->valid = (void **)rfc_mem_param->talloc(sizeof(void *) * rfc_parse_param->size);
     if(!ret_rfc_build->slot_table_manager)
         goto rfc_table_fail;
     memset(ret_rfc_build->slot_table_manager->valid, 0 , sizeof(void *) * rfc_parse_param->size);
@@ -42,11 +42,11 @@ struct rfc_build *init_rfc_build(struct rfc_mem *rfc_mem_param, struct rfc_bitma
     return ret_rfc_build;
 
 rfc_table_fail:
-    rfc_mem_param->tmp_free(ret_rfc_build->slot_table_manager->valid);
+    rfc_mem_param->tfree(ret_rfc_build->slot_table_manager->valid);
 rfc_slot_fail:
-    rfc_mem_param->tmp_free(ret_rfc_build->slot_table_manager);
+    rfc_mem_param->tfree(ret_rfc_build->slot_table_manager);
 rfc_build_fail:
-    rfc_mem_param->tmp_free(ret_rfc_build);
+    rfc_mem_param->tfree(ret_rfc_build);
     return 0;
 }
 
@@ -59,9 +59,9 @@ rfc_build_fail:
  */
 s_int32_t deinit_rfc_build(struct rfc_build *rfc_build_param)
 {
-    rfc_build_param->rfc_mem_manager->tmp_free(rfc_build_param->slot_table_manager->valid);
-    rfc_build_param->rfc_mem_manager->tmp_free(rfc_build_param->slot_table_manager);
-    rfc_build_param->rfc_mem_manager->tmp_free(rfc_build_param);
+    rfc_build_param->rfc_mem_manager->tfree(rfc_build_param->slot_table_manager->valid);
+    rfc_build_param->rfc_mem_manager->tfree(rfc_build_param->slot_table_manager);
+    rfc_build_param->rfc_mem_manager->tfree(rfc_build_param);
     return 0;
 }
 
@@ -123,7 +123,7 @@ s_int32_t rfc_graph_phase0(struct rfc_build *rfc_build_param, rfc_rule *rfc_rule
                 return -1;
             }
 
-            ces_table_manager->valid    = (u_int32_t *)mem_manager->tmp_alloc(sizeof(u_int32_t) * ces_table_manager->ces_cnt);
+            ces_table_manager->valid    = (u_int32_t *)mem_manager->talloc(sizeof(u_int32_t) * ces_table_manager->ces_cnt);
             if(!ces_table_manager->valid){
                 return -1;
             }
@@ -154,7 +154,7 @@ s_int32_t rfc_graph_phase0(struct rfc_build *rfc_build_param, rfc_rule *rfc_rule
  */
 s_int32_t rfc_graph_phase1(struct rfc_build *rfc_build_param, rfc_rule *rfc_rule_param, u_int32_t col_start, u_int32_t col_end){
     u_int32_t               i, j, abmp_id;
-    u_int32_t               *tmp_cbm           = NULL;
+    u_int32_t               *tcbm           = NULL;
     struct rfc_bitmap       *bitmap_manager= NULL;
     struct agg_bitmap       *abmp               = NULL;
     struct rfc_mem          *mem_manager       = NULL;
@@ -166,7 +166,7 @@ s_int32_t rfc_graph_phase1(struct rfc_build *rfc_build_param, rfc_rule *rfc_rule
     mem_manager             = rfc_build_param->rfc_mem_manager;
     parse_manager           = rfc_build_param->rfc_parse_manager;
     slot_manager            = rfc_build_param->slot_table_manager;
-    tmp_cbm    = (u_int32_t *)mem_manager->tmp_alloc(sizeof(u_int32_t)*bitmap_manager->bitmap_len);
+    tcbm    = (u_int32_t *)mem_manager->talloc(sizeof(u_int32_t)*bitmap_manager->bitmap_len);
     for(col = col_start; col <= col_end; col++){
                 ces_table_manager = (struct ces_table*)slot_table->valid[col];
                 cbm_table_manager = alloc_cbm_table(rfc_build_param, rfc_bitmap_manager->rule_nums);
@@ -175,13 +175,13 @@ s_int32_t rfc_graph_phase1(struct rfc_build *rfc_build_param, rfc_rule *rfc_rule
                 abmp_id = 0;
                 for(i = 0; i < ces_table_manager->ces_cnt; i++){
                         if(ces_table_manager->valid[i]){
-                                memset(tmp_cbm, 0, sizeof(u_int32_t)*bitmap_manager->bitmap_len);
+                                memset(tcbm, 0, sizeof(u_int32_t)*bitmap_manager->bitmap_len);
                                 /*build cbm_map*/
                                 if(col_parse_rule(rfc_rule_param, rfc_build_param, col, 0, bitmap_manager->rule_nums - 1, \
-                                        (void *)&ces_entry_manager->key[i], (void *)tmp_cbm, rfc_phase1_callback) < 0){
+                                        (void *)&ces_entry_manager->key[i], (void *)tcbm, rfc_phase1_callback) < 0){
                                     return -1;
                                 }
-                                abmp = aggragate_bmp_convert(bitmap_manager, tmp_bmp)
+                                abmp = aggragate_bmp_convert(bitmap_manager, tbmp)
                                 if(!abmp){
                                     return -1;
                                 }
@@ -215,10 +215,10 @@ s_int32_t rfc_graph_phase1(struct rfc_build *rfc_build_param, rfc_rule *rfc_rule
  */
 s_int32_t rfc_graph_phase1_callback(struct rfc_build *rfc_build_param, u_int32_t col, u_int16_t val, u_int32_t eqid, void *arg1, void *arg2){
     key                     = *((u_int32_t *)arg1);
-    tmp_bmp                 = *((u_int32_t *)arg2);
+    tbmp                 = *((u_int32_t *)arg2);
     if(val == key){
         /*set pos in bitmap*/
-        tmp_cbm + (eqid>>5) |=(u_int32_t)(1<<(eqid&0x1f));
+        tcbm + (eqid>>5) |=(u_int32_t)(1<<(eqid&0x1f));
     }
     return 0;
 }
@@ -376,19 +376,19 @@ struct  ces_entry *alloc_ces_entry(struct rfc_build *rfc_build_param, u_int32_t 
 
         mem_manager                 = rfc_build_param->rfc_mem_manager;
 
-        ces_entry_manager           = (struct ces_entry *)mem_manager->permanent_alloc(sizeof(struct ces_entry));
+        ces_entry_manager           = (struct ces_entry *)mem_manager->palloc(sizeof(struct ces_entry));
         if(!ces_entry_manager){
             return 0;
         }
         memset(ces_entry_manager, 0, sizeof(struct ces_entrt_manager));
 
-        ces_entry_manager->key      = (u_int32_t *)mem_manager->permanent_alloc(sizeof(u_int32_t)*entry_cnt);
+        ces_entry_manager->key      = (u_int32_t *)mem_manager->palloc(sizeof(u_int32_t)*entry_cnt);
         if(!ces_entry_manager->key){
             return 0;
         }
         memset(ces_entry_manager->key, 0, sizeof(u_int32_t)*entry_cnt);
 
-        ces_entry_manager->entry    = (u_int32_t *)mem_manager->permanent_alloc(sizeof(u_int32_t)*entry_cnt);
+        ces_entry_manager->entry    = (u_int32_t *)mem_manager->palloc(sizeof(u_int32_t)*entry_cnt);
         if(!ces_entry_manager->entry){
             return 0;
         }
@@ -407,9 +407,9 @@ struct  ces_entry *alloc_ces_entry(struct rfc_build *rfc_build_param, u_int32_t 
 s_int32_t free_ces_entry(struct rfc_build * rfc_build_param, struct ces_entry *ces_entry_manager){
         struct rfc_mem              *mem_manager       = NULL;
         mem_manager                 = rfc_build_param->rfc_mem_manager;
-        mem_manager->permanent_free(ces_entry_manager->key);
-        mem_manager->permanent_free(ces_entry_manager->entry);
-        mem_manager->permanent_free(ces_entry_manager);
+        mem_manager->pfree(ces_entry_manager->key);
+        mem_manager->pfree(ces_entry_manager->entry);
+        mem_manager->pfree(ces_entry_manager);
     return 0;
 }
 
@@ -427,13 +427,13 @@ struct  ces_table *alloc_ces_table(struct rfc_build *rfc_build_param, u_int32_t 
 
         mem_manager                 = rfc_build_param->rfc_mem_manager;
 
-        ces_table_manager           = (struct ces_table *)mem_manager->permanent_alloc(sizeof(struct ces_table));
+        ces_table_manager           = (struct ces_table *)mem_manager->palloc(sizeof(struct ces_table));
         if(!ces_table_manager){
             return 0;
         }
         memset(ces_table_manager, 0, sizeof(struct ces_table));
 
-        ces_table_manager->valid    = (u_int32_t *)mem_manager->permanent_alloc(sizeof(u_int32_t)*entry_cnt);
+        ces_table_manager->valid    = (u_int32_t *)mem_manager->palloc(sizeof(u_int32_t)*entry_cnt);
         ces_table_manager->ces_cnt  = ces_cnt;
     return ces_table;
 }
@@ -450,8 +450,8 @@ struct  ces_table *alloc_ces_table(struct rfc_build *rfc_build_param, u_int32_t 
 s_int32_t free_ces_table(struct rfc_build * rfc_build_param, struct ces_table *ces_table_manager){
         struct rfc_mem              *mem_manager       = NULL;
         mem_manager                 = rfc_build_param->rfc_mem_manager;
-        mem_manager->permanent_free(ces_table_manager->valid);
-        mem_manager->permanent_free(ces_table_manager);
+        mem_manager->pfree(ces_table_manager->valid);
+        mem_manager->pfree(ces_table_manager);
     return 0;
 }
 
@@ -468,13 +468,13 @@ struct  ces_table *alloc_ces_table(struct rfc_build *rfc_build_param, u_int32_t 
 
         mem_manager                 = rfc_build_param->rfc_mem_manager;
 
-        ces_table_manager           = (struct ces_table *)mem_manager->permanent_alloc(sizeof(struct ces_table));
+        ces_table_manager           = (struct ces_table *)mem_manager->palloc(sizeof(struct ces_table));
         if(!ces_table_manager){
             return 0;
         }
         memset(ces_table_manager, 0, sizeof(struct ces_table));
 
-        ces_table_manager->valid    = (u_int32_t *)mem_manager->permanent_alloc(sizeof(u_int32_t)*entry_cnt);
+        ces_table_manager->valid    = (u_int32_t *)mem_manager->palloc(sizeof(u_int32_t)*entry_cnt);
         if(!ces_table_manager->valid){
             return 0;
         }
@@ -495,55 +495,13 @@ struct  ces_table *alloc_ces_table(struct rfc_build *rfc_build_param, u_int32_t 
 s_int32_t free_ces_table(struct rfc_build * rfc_build_param, struct ces_table *ces_table_manager){
         struct rfc_mem              *mem_manager       = NULL;
         mem_manager                 = rfc_build_param->rfc_mem_manager;
-        mem_manager->permanent_free(ces_table_manager->valid);
-        mem_manager->permanent_free(ces_table_manager);
+        mem_manager->pfree(ces_table_manager->valid);
+        mem_manager->pfree(ces_table_manager);
     return 0;
 }
 
 
 
-/* @brief alloc cbm_table
- * @param[in] rfc_build_param ptr to the build manager
- * @param[in] cbm_cnt size of the table
- * @return cbm_table ptr
- */
-struct  cbm_table *alloc_cbm_table(struct rfc_build *rfc_build_param, u_int32_t cbm_cnt){
-        struct rfc_mem          *mem_manager        = NULL;
-        struct cbm_table        *cbm_table_manager  = NULL;
-
-        mem_manager                 = rfc_build_param->rfc_mem_manager;
-
-        cbm_table_manager           = (struct cbm_table *)mem_manager->tmp_alloc(sizeof(struct cbm_table));
-        if(!cbm_table_manager){
-            return 0;
-        }
-        memset(cbm_table_manager, 0, sizeof(struct cbm_table));
-
-        cbm_table_manager->valid    = (u_int32_t *)mem_manager->tmp_alloc(sizeof(struct agg_bitmap*)*cbm_cnt);
-        if(!cbm_table_manager->valid){
-            return 0;
-        }
-        memset(cbm_table_manager->valid, 0, sizeof(struct agg_bitmap*)*cbm_cnt);
-
-        cbm_table_manager->cbm_cnt  = cbm_cnt;
-    return cbm_table;
-}
-
-
-
-/**
- * @brief free cbm_table
- * @param[in] rfc_build_param ptr to the build manager
- * @param[in] cbm_table_manager ptr to the cbm table
- * @TODO free all aggrate_bitmap here;
- */
-s_int32_t free_cbm_table(struct rfc_build * rfc_build_param, struct cbm_table *cbm_table_manager){
-        struct rfc_mem              *mem_manager       = NULL;
-        mem_manager                 = rfc_build_param->rfc_mem_manager;
-        mem_manager->tmp_free(cbm_table_manager->valid);
-        mem_manager->tmp_free(cbm_table_manager);
-    return 0;
-}
 
 
 
