@@ -6,6 +6,9 @@
  * @author july
  * @date 03/11/2014
  * @note july's blog from csdn 
+ * @note change from july's blog from csdn 
+ *      1.mem cost much
+ *      2.good at search
  *
  */
 
