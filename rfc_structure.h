@@ -8,16 +8,12 @@
  * @date 2014/3/11
  */
 
-#include "aggregate_map.h"
+#include "rfc_conf.h"
+#include "aggregate_master.h"
 #include "map.h"
 
-struct condition_code{
-    void *param[2];
-};
-
 struct rfc_rule{
-    struct condition_code con;
-    u_int32_t             eqid;     
+    void *con[2];
 };
 
 struct ces_table{
@@ -31,19 +27,44 @@ struct ces_table{
 struct ces_entry{
     u_int32_t ces_cnt;  
     u_int32_t cbm_cnt;
-    struct lst_map   *entry;
+    struct rb_map   *entry;
     struct ces_table *next;
 };
 
 
-//rb_map as key-val map
+struct rfc{
+    u_int32_t rule_max;                             /*最大规则数,影响预分配空间*/
+    u_int32_t con_len;                              /*特征码长度,字节为单位*/     
+    u_int32_t piece_cnt;                            /*分片数*/     
+    u_int32_t core_cnt;                             /*核数量*/
+    u_int32_t rule_cnt;                             /*实际规则数*/
 
-//agg master work as cbm table
+    struct rb_map     *rbp;                         /*键值映射表*/
+    struct ces_entry  *entry;                       /*构建完成后查找入口*/ 
+    struct rfc_rule   *rule;                        /*构建初始时rule存放空间*/
+    struct agg_master *agmp;                        /*聚合表相关管理 TODO mutilcore support */
 
-struct slot_table{
-    u_int32_t slot_cnt;
-    void **slots;
+    void * (*palloc)(u_int32_t);                    /**<permanent mem alloc*/
+    void   (*pdestory)(void *);                     /**<permanent mem free*/
+
+    void * (*talloc)(u_int32_t);                    /**<tmp mem alloc*/
+    void   (*tdestory)(void *);                     /**<tmp mem free*/
+
+    s_int32_t status;                               /** <rfc所处阶段 0.init 1.read rule 2.phase0  3.phase1, 4.phase2 5.phase3 6.wait search 7.destory*/
 };
+
+
+enum{
+    RFC_INIT,
+    RFC_READ,
+    RFC_PHASE0,
+    RFC_PHASE1,
+    RFC_PHASE2,
+    RFC_PHASE3,
+    RFC_SEARCH,
+    RFC_DESTORY
+};
+
 
 #endif
 

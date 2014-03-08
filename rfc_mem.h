@@ -11,11 +11,6 @@
 
 /*mem manager for rfc*/
 struct rfc_mem{
-    void * (*talloc)(u_int32_t);                    /**<tmp mem alloc*/
-    void   (*tdestory)(void *);                     /**<tmp mem free*/
-
-    void * (*palloc)(u_int32_t);                    /**<permanent mem alloc*/
-    void   (*pdestory)(void *);                     /**<permanent mem free*/
 };
 
 
