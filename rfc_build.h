@@ -13,20 +13,19 @@
 #include "rfc_parse.h"
 
 struct rfc_build{
-    struct rfc_mem      *memp;
-    struct agg_master   *agmp;
-    struct rfc_parse    *parsp;
-    struct slot_table   *slotp;
+    struct rfc_mem      *memp;  /** < mem manager ptr*/
+    struct agg_master   *agmp;  /** < aggregate map manager ptr, 多核情况下多实体*/
+    struct rfc_parse    *parsp; /** < parse ptr*/
+    struct slot_table   *slotp; /** < slot table ptr*/
 };
 
 struct phase2_element{
-    struct ces_table *ces_table_ptr;
-    struct cbm_table *cbm_table_ptr;
+    struct ces_table *cetp;     
+    struct cbm_table *cbtp;
 };
 
-
-extern struct rfc_build *init_rfc_build(struct rfc_mem *rfc_mem_param, struct rfc_bitmap *rfc_bitmap_param, rfc_parse *rfc_parse_param);
-extern s_int32_t deinit_rfc_build(struct rfc_build *rfc_build_param);
+extern struct rfc_build *alloc_buildp(struct rfc_mem *memp, struct agg_master *agmp, struct rfc_parse *parsp, struct slotp *slotp);
+void destory_buildp(struct rfc_build *rfc_buildp);
 
 
 #endif
