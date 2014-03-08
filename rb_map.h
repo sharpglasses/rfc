@@ -1,8 +1,8 @@
-#ifndef  RB_TREE_H_
-#define  RB_TREE_H_
+#ifndef  RB_MAP_H_
+#define  RB_MAP_H_
 /**
- * @brief rb_tree copy from july
- * @file rb_tree.h
+ * @brief rb_map copy from july
+ * @file rb_map.h
  * @author july
  * @date 03/11/2014
  * @note july's blog from csdn 
@@ -20,7 +20,6 @@ typedef enum color
     BLACK = 1
 }color_t;
 
-
 typedef struct rb_node
 {
     struct rb_node *left, *right, *parent;
@@ -29,18 +28,17 @@ typedef struct rb_node
     color_t color;
 }rb_node_t;
 
-typedef struct rb_tree{
+typedef struct rb_map{
     rb_node_t *root;
     void * (*rb_alloc)(u_int32_t);                     
     void   (*rb_destory)(void *);                          
-}rb_tree_t;
+}rb_map_t;
 
-
-extern struct rb_tree * alloc_rbp(void * (*rb_alloc)(u_int32_t), void (*rb_destory)(void *));
-extern void destory_rbp(struct rb_tree *rbp);
-extern rb_node_t* rb_search(rb_tree_t *rbp, rb_key_t key);
-extern rb_node_t* rb_insert(rb_tree_t *rbp, rb_key_t key, rb_data_t data);
-extern rb_node_t* rb_erase(rb_tree_t  *rbp, rb_key_t key);
+extern struct rb_map * alloc_rbp(void * (*rb_alloc)(u_int32_t), void (*rb_destory)(void *));
+extern void destory_rbp(struct rb_map *rbp);
+extern rb_node_t* rbp_search(rb_map_t *rbp, rb_key_t key);
+extern s_int32_t  rbp_set(rb_map_t *rbp, rb_key_t key, rb_data_t data);
+extern void rbp_erase(rb_map_t  *rbp, rb_key_t key);
 
 
 #endif

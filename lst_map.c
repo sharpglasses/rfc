@@ -19,9 +19,22 @@ static void add_lstnp(struct lst_map *lstmp, struct lst_node *lstnp);
 static void remove_lstnp(struct lst_map *lstmp, struct lst_node *lstnp);
 static struct  lst_node * alloc_lstnp(struct lst_map *lstmp);
 static void destory_lstnp(struct lst_map *lstmp, struct lst_node *lstnp);
+static void  del_lstmp_node(struct lst_map *lstmp, struct lst_node* lstnp);
 
 
-
+/**
+ * @brief del node by key
+ * @param[in] lstmp map
+ * @param[in] key
+ * @return 
+ */
+void  lstmp_erase(struct lst_map *lstmp, u_int32_t key)
+{
+    struct lst_node *lstnp = lstmp_search(lstmp, key);
+    if(lstnp){
+        del_lstmp_node(lstmp, lstnp);
+    }
+}
 
 /**
  * @brief del pair in map
@@ -29,7 +42,7 @@ static void destory_lstnp(struct lst_map *lstmp, struct lst_node *lstnp);
  * @param[in] lstnp pair 
  * @return 
  */
-void  del_lstmp_node(struct lst_map *lstmp, struct lst_node* lstnp)
+static void  del_lstmp_node(struct lst_map *lstmp, struct lst_node* lstnp)
 {
     remove_lstnp(lstmp, lstnp);
     destory_lstnp(lstmp, lstnp);
@@ -41,7 +54,7 @@ void  del_lstmp_node(struct lst_map *lstmp, struct lst_node* lstnp)
  * @param[in] key 
  * @return 
  */
-struct lst_node *search_in_lstmp(struct lst_map *lstmp, u_int32_t key)
+struct lst_node *lstmp_search(struct lst_map *lstmp, u_int32_t key)
 {
         struct lst_node *lstnp;
         struct list_head  *pos;
@@ -61,9 +74,9 @@ struct lst_node *search_in_lstmp(struct lst_map *lstmp, u_int32_t key)
  * @return -1 alloc space fail
  * @return  0  success
  */
-s_int32_t set_lstmp(struct lst_map *lstmp, u_int32_t key, u_int32_t val)
+s_int32_t lstmp_set(struct lst_map *lstmp, u_int32_t key, u_int32_t val)
 {
-    struct lst_node *lstnp = search_in_lstmp(lstmp, key);
+    struct lst_node *lstnp = lstmp_search(lstmp, key);
     if(!lstnp){
         lstnp = alloc_lstnp(lstmp);
         add_lstnp(lstmp, lstnp);
@@ -191,7 +204,7 @@ void debug_lstmp(struct lst_map *lstmp){
         fprintf(stderr, "\n");
 }
 
-s_int32_t traversal_in_lstmp(struct lst_map *lstmp, void *input, void *output, s_int32_t (*callback)(u_int32_t i, struct lst_map *, struct lst_node*, void *, void *)){
+s_int32_t lstmp_traversal(struct lst_map *lstmp, void *input, void *output, s_int32_t (*callback)(u_int32_t i, struct lst_map *, struct lst_node*, void *, void *)){
         struct lst_node *lstnp;
         struct list_head  *pos;
         u_int32_t i = 0;
@@ -211,10 +224,6 @@ s_int32_t traversal_in_lstmp(struct lst_map *lstmp, void *input, void *output, s
  *
  *
  */
-
-
-
-/*
 s_int32_t lst_callback(u_int32_t i, struct lst_map *lstmp, struct lst_node *lstnp, void *input, void *output){
     //debug_lstmp(lstmp);
     fprintf(stderr, "get idx %u from call\n", i);
@@ -227,26 +236,28 @@ int main()
 {
     struct lst_map *lstmp = alloc_lstmp(malloc, free);
     struct lst_node *lstnp;
-    fprintf(stderr, "set ret %d\n", set_lstmp(lstmp, 0, 1));
-    fprintf(stderr, "set ret %d\n", set_lstmp(lstmp, 1, 1));
-    fprintf(stderr, "set ret %d\n", set_lstmp(lstmp, 2, 2));
-    fprintf(stderr, "set ret %d\n", set_lstmp(lstmp, 1, 0));
-    lstnp = search_in_lstmp(lstmp, 6);
+    fprintf(stderr, "set ret %d\n", lstmp_set(lstmp, 0, 1));
+    fprintf(stderr, "set ret %d\n", lstmp_set(lstmp, 1, 1));
+    fprintf(stderr, "set ret %d\n", lstmp_set(lstmp, 2, 2));
+    fprintf(stderr, "set ret %d\n", lstmp_set(lstmp, 1, 0));
+    lstnp = lstmp_search(lstmp, 6);
     if(!lstnp){
         fprintf(stderr, "not found\n");
     }
-    lstnp = search_in_lstmp(lstmp, 1);
+    lstnp = lstmp_search(lstmp, 1);
     if(!lstnp){
         fprintf(stderr, "not found\n");
     }
     debug_lstnp(lstnp);
 
     debug_lstmp(lstmp);
-    del_lstmp_node(lstmp, lstnp);
+    lstmp_erase(lstmp, 0);
+    lstmp_erase(lstmp, 1);
+    lstmp_erase(lstmp, 2);
+    lstmp_erase(lstmp, 6);
     debug_lstmp(lstmp);
-    traversal_in_lstmp(lstmp, NULL, NULL, lst_callback);
+    lstmp_traversal(lstmp, NULL, NULL, lst_callback);
     destory_lstmp(lstmp);
 return 0;
 }
 
-*/

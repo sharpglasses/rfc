@@ -1,25 +1,24 @@
-#include "rb_tree.h"
+#include "rb_map.h"
 
 /**
- * @brief rb_tree copy from july
- * @file rb_tree.c
+ * @brief rb_map copy from july
+ * @file rb_map.c
  * @author july
- * @date
- * @note july's blog from csdn 
+ * @date 03/11/2014
+ * @note change from july's blog from csdn 
  */
 
 
-static rb_node_t *rb_new_node(rb_tree_t *rbp, rb_key_t key, rb_data_t data);
+static rb_node_t *rb_new_node(rb_map_t *rbp, rb_key_t key, rb_data_t data);
 static rb_node_t* rb_rotate_left(rb_node_t* node, rb_node_t* root);
 static rb_node_t* rb_rotate_right(rb_node_t* node, rb_node_t* root);
-static rb_node_t* rb_search_auxiliary(rb_key_t key, rb_node_t* root, rb_node_t** save);
-static rb_node_t * rb_insert_rebalance(rb_node_t *node, rb_node_t *root);
-static rb_node_t* rb_erase_rebalance(rb_node_t *node, rb_node_t *parent, rb_node_t *root);
+static rb_node_t* rbp_search_auxiliary(rb_key_t key, rb_node_t* root, rb_node_t** save);
+static rb_node_t * rbp_set_rebalance(rb_node_t *node, rb_node_t *root);
+static rb_node_t* rbp_erase_rebalance(rb_node_t *node, rb_node_t *parent, rb_node_t *root);
 
 
-
-rb_tree_t * alloc_rbp(void * (*rb_alloc)(u_int32_t), void (*rb_destory)(void *)){
-        rb_tree_t *rbp = (struct rb_tree*)rb_alloc(sizeof(struct rb_tree));
+rb_map_t * alloc_rbp(void * (*rb_alloc)(u_int32_t), void (*rb_destory)(void *)){
+        rb_map_t *rbp = (struct rb_map*)rb_alloc(sizeof(struct rb_map));
         if(!rbp){
             return 0;
         }
@@ -29,15 +28,14 @@ rb_tree_t * alloc_rbp(void * (*rb_alloc)(u_int32_t), void (*rb_destory)(void *))
         return rbp;
 }
 
-void destory_rbp(rb_tree_t *rbp){
+void destory_rbp(rb_map_t *rbp){
         while(rbp->root){
-            rb_erase(rbp, rbp->root->key);
+            rbp_erase(rbp, rbp->root->key);
         }
         rbp->rb_destory(rbp);
 }
 
-
-static rb_node_t *rb_new_node(rb_tree_t * rbp, rb_key_t key, rb_data_t data)
+static rb_node_t *rb_new_node(rb_map_t * rbp, rb_key_t key, rb_data_t data)
 {
     rb_node_t *node = (rb_node_t *)rbp->rb_alloc(sizeof(struct rb_node));
     if(!node){
@@ -130,10 +128,10 @@ static rb_node_t* rb_rotate_right(rb_node_t* node, rb_node_t* root)
 
 //三、红黑树查找结点
 //----------------------------------------------------
-//rb_search_auxiliary：查找
-//rb_node_t* rb_search：返回找到的结点
+//rbp_search_auxiliary：查找
+//rb_node_t* rbp_search：返回找到的结点
 //----------------------------------------------------
-static rb_node_t* rb_search_auxiliary(rb_key_t key, rb_node_t* root, rb_node_t** save)
+static rb_node_t* rbp_search_auxiliary(rb_key_t key, rb_node_t* root, rb_node_t** save)
 {
     rb_node_t *node = root, *parent = NULL;
 
@@ -162,29 +160,33 @@ static rb_node_t* rb_search_auxiliary(rb_key_t key, rb_node_t* root, rb_node_t**
     return NULL;
 }
 
-//返回上述rb_search_auxiliary查找结果
-rb_node_t* rb_search(rb_tree_t *rbp, rb_key_t key)
+//返回上述rbp_search_auxiliary查找结果
+rb_node_t* rbp_search(rb_map_t *rbp, rb_key_t key)
 {
-    return rb_search_auxiliary(key, rbp->root, NULL);
+    return rbp_search_auxiliary(key, rbp->root, NULL);
 }
 
 
 //四、红黑树的插入
 //---------------------------------------------------------
 //红黑树的插入结点
-rb_node_t* rb_insert(rb_tree_t *rbp, rb_key_t key, rb_data_t data)
+s_int32_t rbp_set(rb_map_t *rbp, rb_key_t key, rb_data_t data)
 {
-    rb_node_t *parent = NULL, *node, *root;
-    root = rbp->root;
+    rb_node_t *parent = NULL, *node;
 
     parent = NULL;
-    if ((node = rb_search_auxiliary(key, root, &parent)))  //调用rb_search_auxiliary找到插入结点的地方
+    if ((node = rbp_search_auxiliary(key, rbp->root, &parent)))  //调用rbp_search_auxiliary找到插入结点的地方
 
     {
-        return root;
+        node->data = data;
+        return 0;
     }
 
     node = rb_new_node(rbp, key, data);  //分配结点
+    node->data = data;
+    if(!node){
+        return -1;
+    }
     node->parent = parent;
     node->left = node->right = NULL;
     node->color = RED;
@@ -202,10 +204,10 @@ rb_node_t* rb_insert(rb_tree_t *rbp, rb_key_t key, rb_data_t data)
     }
     else
     {
-        root = node;
+        rbp->root = node;
     }
-
-    return rb_insert_rebalance(node, root);   //插入结点后，调用rb_insert_rebalance修复红黑树的性质
+    rbp->root = rbp_set_rebalance(node, rbp->root);   //插入结点后，调用rbp_set_rebalance修复红黑树的性质
+    return 0;
 }
 
 
@@ -216,7 +218,7 @@ rb_node_t* rb_insert(rb_tree_t *rbp, rb_key_t key, rb_data_t data)
 //为了在下面的注释中表示方便，也为了让下述代码与我的倆篇文章相对应，
 //用z表示当前结点，p[z]表示父母、p[p[z]]表示祖父、y表示叔叔。
 //--------------------------------------------------------------
-static rb_node_t * rb_insert_rebalance(rb_node_t *node, rb_node_t *root)
+static rb_node_t * rbp_set_rebalance(rb_node_t *node, rb_node_t *root)
 {
     rb_node_t *parent, *gparent, *uncle, *tmp;  //父母p[z]、祖父p[p[z]]、叔叔y、临时结点*tmp
 
@@ -291,17 +293,16 @@ static rb_node_t * rb_insert_rebalance(rb_node_t *node, rb_node_t *root)
 //六、红黑树的删除
 //------------------------------------------------------------
 //红黑树的删除结点
-rb_node_t* rb_erase(rb_tree_t *rbp, rb_key_t key)
+void rbp_erase(rb_map_t *rbp, rb_key_t key)
 {
     
-    rb_node_t *child, *parent, *old, *left, *node,  *root;
+    rb_node_t *child, *parent, *old, *left, *node;
     color_t color;
-    root = rbp->root;
 
-    if (!(node = rb_search_auxiliary(key, root, NULL)))  //调用rb_search_auxiliary查找要删除的结点
+    if (!(node = rbp_search_auxiliary(key, rbp->root, NULL)))  //调用rbp_search_auxiliary查找要删除的结点
     {
-        printf("key %d is not exist!\n");
-        return root;
+        //printf("key %d is not exist!\n");
+        return ;
     }
 
     old = node;
@@ -334,7 +335,7 @@ rb_node_t* rb_erase(rb_tree_t *rbp, rb_key_t key)
         }
         else
         {
-            root = child;
+            rbp->root = child;
         }
 
         if (node->parent == old)
@@ -360,7 +361,7 @@ rb_node_t* rb_erase(rb_tree_t *rbp, rb_key_t key)
         }
         else
         {
-            root = node;
+            rbp->root = node;
         }
 
         old->left->parent = node;
@@ -399,7 +400,7 @@ rb_node_t* rb_erase(rb_tree_t *rbp, rb_key_t key)
         }
         else
         {
-            root = child;
+            rbp->root = child;
         }
     }
 
@@ -407,10 +408,8 @@ rb_node_t* rb_erase(rb_tree_t *rbp, rb_key_t key)
 
     if (color == BLACK)
     {
-        root = rb_erase_rebalance(child, parent, root); //调用rb_erase_rebalance来恢复红黑树性质
+        rbp->root = rbp_erase_rebalance(child, parent, rbp->root); //调用rbp_erase_rebalance来恢复红黑树性质
     }
-
-    return root;
 }
 
 
@@ -420,7 +419,7 @@ rb_node_t* rb_erase(rb_tree_t *rbp, rb_key_t key)
 //为了表示下述注释的方便，也为了让下述代码与我的倆篇文章相对应，
 //x表示要删除的结点，*other、w表示兄弟结点，
 //----------------------------------------------------------------
-static rb_node_t* rb_erase_rebalance(rb_node_t *node, rb_node_t *parent, rb_node_t *root)
+static rb_node_t* rbp_erase_rebalance(rb_node_t *node, rb_node_t *parent, rb_node_t *root)
 {
     rb_node_t *other, *o_left, *o_right;   //x的兄弟*other，兄弟左孩子*o_left,*o_right
 
@@ -522,50 +521,46 @@ static rb_node_t* rb_erase_rebalance(rb_node_t *node, rb_node_t *parent, rb_node
 
 //八、测试用例
 //主函数
+/*
 int main()
 {
     u_int32_t i, count = 100;
     rb_key_t key;
-    rb_tree_t *rbp;
-    rb_node_t *root, *node = NULL;
+    rb_map_t *rbp;
+    rb_node_t *node = NULL;
     srand(time(NULL));
     rbp = alloc_rbp(malloc, free);
     if(!rbp){
         fprintf(stderr,"alloc rbp fail\n");
     }
-    for (i = 1; i < count; ++i)
-    {
-        key = rand() % count;
-        if ((root = rb_insert(rbp, key, i)))
-        {
-            printf("[i = %d] insert key %d success!\n", i, key);
-        }
-        else
-        {
-            printf("[i = %d] insert key %d error!\n", i, key);
-            exit(-1);
-        }
-
-        if ((node = rb_search(rbp, key)))
-        {
-            printf("[i = %d] search key %d success!\n", i, key);
-        }
-        else
-        {
-            printf("[i = %d] search key %d error!\n", i, key);
-            exit(-1);
-        }
-        if (!(i % 10))
-        {
-            if ((root = rb_erase(rbp, key)))
-            {
-                printf("[i = %d] erase key %d success\n", i, key);
+    rbp_set(rbp, 0, 1);
+    rbp_set(rbp, 2, 2);
+    rbp_set(rbp, 3, 4);
+    rbp_set(rbp, 4, 1);
+    rbp_set(rbp, 2, 7);
+    rbp_set(rbp, 4, 1);
+    for(i = 0; i < 10; i++){
+            fprintf(stderr, "key %u\n:", i);
+            if(node = rbp_search(rbp, i)){
+                fprintf(stderr, "%u\n", node->data);
+            }else{
+                fprintf(stderr, "not exists\n");
             }
-            else
-            {
-                printf("[i = %d] erase key %d error\n", i, key);
+    }
+    rbp_erase(rbp, 1);
+    rbp_erase(rbp, 2);
+    rbp_erase(rbp, 3);
+    rbp_erase(rbp, 9);
+    rbp_erase(rbp, 22);
+    rbp_set(rbp, 1, 7);
+    for(i = 0; i < 10; i++){
+            fprintf(stderr, "key %u\n:", i);
+            if(node = rbp_search(rbp, i)){
+                fprintf(stderr, "%u\n", node->data);
+            }else{
+                fprintf(stderr, "not exists\n");
             }
-        }
     }
     return 0;
 }
+*/

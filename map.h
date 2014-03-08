@@ -10,5 +10,4 @@
 #include "rb_tree.h"
 
 
-
 #endif
