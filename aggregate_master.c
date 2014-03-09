@@ -164,7 +164,7 @@ void remove_agg_bitmap(struct agg_table *agg_table_par, struct agg_bitmap *agg_b
 
 
 /**
- * @brief convert normal bitmap into aggregated bitmap 
+ * @brief convert normal bitmap to aggregated bitmap 
  * @param[in] agg_master_par ptr to agg_master
  * @param[in] bmp            ptr to normal bitmap
  * @return ptr to the aggregated bitmap
@@ -195,6 +195,35 @@ struct agg_bitmap *bmp_to_abmp(struct agg_master *agg_master_par, u_int32_t *bmp
 	}
 	abmp->bmp_cnt = detail_bmp_count;
 	return abmp;
+}
+
+
+/**
+ * @brief convert aggregated bitmap to normal bitmap 
+ * @param[in] agmp ptr to agg_master
+ * @param[in] abmp ptr to the aggregated bitmap
+ * @param[in] bmp            ptr to normal bitmap
+ * @return ptr to the aggregated bitmap
+ */
+u_int32_t *abmp_to_bmp(struct agg_master * agmp, struct agg_bitmap *abmp, u_int32_t *bmp){
+	u_int32_t *p2;
+	u_int32_t *p3;
+	u_int32_t i, j, k;
+	p2 = (u_int32_t *)(abmp + 1);
+	p3 = p2 + agmp->agg_bitmap_len;
+	k = 0;
+	for(i= 0; i< agmp->agg_bitmap_len; i++)
+        {
+            for(j = 0; j < 32 ; j++){
+                if(p2[i] & (1 << j)){
+                    bmp[k] = *p3++;
+                }else{
+                    bmp[k] = 0;
+                }
+            }     
+        
+        }
+        return bmp;
 }
 
 /**
