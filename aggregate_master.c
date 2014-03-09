@@ -216,9 +216,9 @@ u_int32_t *abmp_to_bmp(struct agg_master * agmp, struct agg_bitmap *abmp, u_int3
         {
             for(j = 0; j < 32 ; j++){
                 if(p2[i] & (1 << j)){
-                    bmp[k] = *p3++;
+                    bmp[k++] = *p3++;
                 }else{
-                    bmp[k] = 0;
+                    bmp[k++] = 0u;
                 }
             }     
         
