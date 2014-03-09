@@ -10,7 +10,7 @@
  * @brief alloc agg_master
  * @param[in] agg_alloc ptr used to alloc mem
  * @param[in] agg_destory ptr used to free mem
- * @param[in] bit_len    tot bits of bitmap wait to aggregate
+ * @param[in] bit_len tot bits of bitmap wait to aggregate
  * return ptr to the agg_master
  */
 struct agg_master *alloc_agg_master(void *(*agg_alloc)(u_int32_t), void (*agg_destory)(void *), u_int32_t bit_len){
@@ -24,8 +24,8 @@ struct agg_master *alloc_agg_master(void *(*agg_alloc)(u_int32_t), void (*agg_de
         new_agg_master->agg_alloc       = agg_alloc;
         new_agg_master->agg_destory     = agg_destory;
 
-        new_agg_master->bit_len         = bit_len;                                      /* 1bit/step   */
-        new_agg_master->bitmap_len      = (new_agg_master->bit_len        + 31u) >> 5;  /* 32bit/step */
+        new_agg_master->bit_len         = bit_len;                                  /* 1bit/step   */
+        new_agg_master->bitmap_len      = (new_agg_master->bit_len    + 31u) >> 5;  /* 32bit/step */
         new_agg_master->agg_bitmap_len  = (new_agg_master->bitmap_len + 31u) >> 5;  /* 32bit/step */
 
         new_agg_master->mem = (struct agg_bitmap *)new_agg_master->agg_alloc(ABMP_HEAD_SIZE + 4*new_agg_master->agg_bitmap_len + 4*new_agg_master->bitmap_len);
@@ -116,7 +116,6 @@ struct agg_bitmap *alloc_agg_bitmap(struct agg_master *agmp){
     agmp->abmp_cnt++;
 }
 
-
 /**
  * @brief alloc space for aggregate
  * @param[in] agmp ptr to agg_master
@@ -140,7 +139,6 @@ void add_agg_bitmap(struct agg_table *agtp, struct agg_bitmap *abmp){
     list_add(&abmp->abmp_link, &agtp->abmp_head);
     agtp->abmp_cnt++;
 };
-
 
 /**
  * @brief add  agg_bitmap into agg_table tail
@@ -283,7 +281,6 @@ struct agg_bitmap *abmp_or(struct agg_master *agmp, struct agg_bitmap *abmp1, st
 	return abmp_ret;
 }
 
-
 /**
  * @brief check if aggregated bmp equal 
  * @param[in] agmp ptr to the agg_master
@@ -307,7 +304,6 @@ s_int32_t abmp_equal( struct agg_master * agmp, struct agg_bitmap *abmp1, struct
 	}
 	return 0;
 }
-
 
 /**
  * @brief compare two aggregated bitmap
@@ -406,7 +402,6 @@ void debug_agg_table(struct agg_master *agmp, struct agg_table *agtp){
             debug_agg_bitmap(agmp, abmp_tmp);
         }
         fprintf(stderr, "\n");
-       
 }
 
 /**

@@ -77,8 +77,5 @@ extern void debug_agg_bitmap(struct agg_master *agmp, struct agg_bitmap *abmp);
 extern void debug_agg_table(struct agg_master *agmp, struct agg_table *agtp);
 extern void debug_agg_master(struct agg_master *agmp);
 
-
-
-
 #endif
 
