@@ -5,6 +5,8 @@
  * @file  aggregate_master.h
  * @author mhw
  * @date 2014/3/11
+ * @TODO 使用平衡二叉树代替链式结构管理table
+ *
  */
 
 #include "conf.h"
