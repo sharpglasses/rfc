@@ -6,26 +6,26 @@
  * @file rfc_build.h
  * @author mhw
  * @note 
- * @date 2014/3/11
+ * @date 2014/3/12
  *
  */
 #include "rfc_structure.h"
 #include "rfc_parse.h"
 
-struct rfc_build{
-    struct rfc_mem      *memp;  /** < mem manager ptr*/
-    struct agg_master   *agmp;  /** < aggregate map manager ptr, 多核情况下多实体*/
-    struct rfc_parse    *parsp; /** < parse ptr*/
-    struct slot_table   *slotp; /** < slot table ptr*/
-};
-
-struct phase2_element{
+struct ph2_ret{
     struct ces_table *cetp;     
     struct cbm_table *cbtp;
 };
 
-extern struct rfc_build *alloc_buildp(struct rfc_mem *memp, struct agg_master *agmp, struct rfc_parse *parsp, struct slotp *slotp);
-void destory_buildp(struct rfc_build *rfc_buildp);
+/**
+ * @breif param[in] 子构建单元, 并行构建的分配接口
+ * @param[in] rfc rfcp 全局管理结构
+ * @param[in] agmp 聚合表管理，每个计算单元一个实体
+ * @param[in] sidx 构建集合开始索引
+ * @param[in] eidx 构建集合借宿索引
+ *
+ */
+extern struct rfc_build *rfc_build_child(struct rfc *rfcp, struct agg_master *agmp, u_int32_t sidx, u_int32_t eidx);
 
 
 #endif
