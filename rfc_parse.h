@@ -9,12 +9,6 @@
  */
 #include "rfc_structure.h"
 
-struct parse_info{
-    u_int32_t pidx;                          /** < 该分片的索引 */
-    u_int16_t pval;                          /** < 该分片的值   */
-    u_int32_t eqid;                          /** < 该分片的eqid */
-    u_int32_t bit_len;                       /** < 该分片所占大小, bit/bit_len, 暂时未使用*/                         
-};
 
 /**
  * @brief 遍历所有rule的某一个piece

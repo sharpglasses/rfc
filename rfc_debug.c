@@ -68,4 +68,24 @@ void debug_rule(struct rfc *rfcp, struct rfc_rule *rulep){
 }
 
 
+/**
+ * @brief 调试解析接口
+ *
+ */
+void debug_parse(struct parse_info *pinfo){
+    u_int8_t  *val1, *val2;
+    fprintf(stderr, "pinfo:\n");
+    fprintf(stderr, "pinfo->pidx: %u\n", pinfo->pidx);                    
+    fprintf(stderr, "pinfo->pval: %u\n", pinfo->pval);                    
+    fprintf(stderr, "pinfo->pidx: %u\n", pinfo->eqid);                    
+    fprintf(stderr, "pinfo->pidx: %u\n", pinfo->bit_len);     
+    val1 = (u_int8_t *)(&(pinfo->pval));
+    val2 = val1 + 1;
+    fprintf(stderr, "pinfo->pval[0]: %u\n", *val1);     
+    fprintf(stderr, "pinfo->pval[1]: %u\n", *val2);     
+    fprintf(stderr, "\n");
+    fprintf(stderr, "\n");
+}
+
+
 

@@ -2,10 +2,19 @@
 
 #define CORE_CNT 1
 #define RULE_MAX 65535
-#define RULE_CNT 10
-#define CON_SIZE  9
+#define RULE_CNT 0
+#define CON_SIZE  8
 #define VAL_SIZE 20
 #define BYT_SIZE 256
+
+
+#define PARSE_IDX 1
+
+s_int32_t parse_callback(struct rfc *rfcp, struct parse_info *pinfo, void* input, void *output)
+{
+    debug_parse(pinfo);
+return 0;
+}
 
 
 int main()
@@ -51,8 +60,33 @@ int main()
             }
     }
     fprintf(stderr, "read all rule success\n\n");
-
-
     debug_rfc(rfcp);  
+    /*TODO 测试parse 接口正确性*/
+    param1 = (u_int8_t *)malloc(sizeof(u_int8_t)*CON_SIZE);
+    param2 = (u_int8_t *)malloc(sizeof(u_int8_t)*CON_SIZE);
+    param1[0] = 1;
+    param1[1] = 1;
+    param1[2] = 1;
+    param1[3] = 1;
+    param1[4] = 1;
+    param1[5] = 1;
+    param1[6] = 1;
+    param1[7] = 1;
+
+
+    param2[0] = 1;
+    param2[1] = 1;
+    param2[2] = 9;
+    param2[3] = 3;
+    param2[4] = 1;
+    param2[5] = 1;
+    param2[6] = 1;
+    param2[7] = 1;
+    if(rfc_read_rule(rfcp, (void *)param1, (void *)param2, val) < 0){
+           fprintf(stderr, "read rule into rfcp fail\n");
+            return -1;
+    }
+    debug_rfc(rfcp);  
+    piece_parse_rule(PARSE_IDX, rfcp, rfcp->agmp, 0, 0, parse_callback);
     return 0;
 }

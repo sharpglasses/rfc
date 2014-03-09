@@ -2,6 +2,7 @@
 #define  RFc_DEBUG_H_
 
 #include "rfc_structure.h"
+
 /**
  * @brief 存放rfc调试接口
  * @file rfc_debug.h
@@ -34,5 +35,11 @@ void debug_con(struct rfc *rfcp, void *con);
  *
  */
 void debug_rule(struct rfc *rfcp, struct rfc_rule *rulep);
+
+/**
+ * @brief 用于调试解析接口
+ *
+ */
+void debug_pinfo(struct parse_info *pinfo);
 
 #endif
