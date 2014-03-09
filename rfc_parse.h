@@ -4,28 +4,33 @@
  * @brief rfc parse condition code
  * @file rfc_parse.h
  * @author mhw
- * @date 2014/3/3
+ * @date 2014/3/12
  *
  */
-#include "rfc_conf.h"
-#include "rfc_mem.h"
 #include "rfc_structure.h"
 
-struct rfc_parse{
-    void *(*agg_alloc)(u_int32_t);          /** <ptr to alloc mem     */
-    void  (*agg_destory)(void *);           /** <ptr to free  mem     */
-    u_int32_t size;
+struct parse_info{
+    u_int32_t pidx;                          /** < 该分片的索引 */
+    u_int16_t pval;                          /** < 该分片的值   */
+    u_int32_t eqid;                          /** < 该分片的eqid */
+    u_int32_t bit_len;                       /** < 该分片所占大小, bit/bit_len, 暂时未使用*/                         
 };
 
-struct parse_coin{
-    u_int32_t key;                          /** < piece idx in condition code */
-    u_int32_t val;                          /** < val of this piece*/
-    u_int32_t eqid;                         /** < eqid of this rule*/
-};
+/**
+ * @brief 遍历所有rule的某一个piece
+ * @param[in] pidx   被分析的分片索引
+ * @param[in] rfcp   rfc 管理结构
+ * @param[in] agmp   聚合表管理，在启动并行计算时，该结构对每一个线程分配一个实体
+ * @param[in] input  外部输入结构，用于回调使用
+ * @param[in] output 外部输出结构, 用于回调函数使用
+ * @param[in] callback 回调函数,接收parse 获取的数据以及内外部结构进行分析数据并处理
+ * @note 
+ *      1.扩展方式为8bit扩展
+ *      2.分片方式为先16bit分片
+ *      3.逐条扩展防止内存爆炸
+ *@TODO 输入16bit 对齐限制
+ */
+extern s_int32_t piece_parse_rule(u_int32_t pidx, struct rfc *rfcp, struct agg_master *agmp, void *input, void *output,\
+        s_int32_t (*callback)(struct rfc *, struct parse_info *, void*, void *));
 
-
-extern struct rfc_parse *alloc_rfc_parse(struct rfc_mem *rfc_mem_param, u_int32_t size);
-extern s_int32_t destory_rfc_parse(struct rfc_parse * parsp);
-extern s_int32_t col_parse_rule(struct rfc_rule *rfc_rule_param, struct rfc_build *rfc_build_param, u_int32_t col, u_int32_t row_start, u_int32_t row_end,\
-        void *arg1, void *arg2, s_int32_t (*callback)( struct rfc_build *, u_int32_t, u_int16_t, void arg1*, void *arg2))
 #endif
