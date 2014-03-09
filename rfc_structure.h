@@ -42,7 +42,9 @@ struct rfc{
     struct rb_map     *rbp;                         /*键值映射表*/
     struct ces_entry  *entry;                       /*构建完成后查找入口*/ 
     struct rfc_rule   *rule;                        /*构建初始时rule存放空间*/
-    struct agg_master *agmp;                        /*聚合表相关管理 TODO mutilcore support */
+    struct agg_master *agmp;                        /*聚合表相关管理 TODO 并行处理开启时需要2选一 
+                                                        1.每个构建单元分配一个实体, 高效耗内存
+                                                        2.使用读写锁保证安全， 耗时间，内存开销较小*/
 
     void * (*palloc)(u_int32_t);                    /**<permanent mem alloc*/
     void   (*pdestory)(void *);                     /**<permanent mem free*/
