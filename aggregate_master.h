@@ -59,23 +59,23 @@ struct agg_master{
 #define ABMP_MASTER_SIZE    (sizeof(struct agg_master))
 
 extern struct agg_master *alloc_agg_master(void *(*agg_alloc)(u_int32_t), void (*agg_destory)(void *), u_int32_t bit_len);
-extern void destory_agg_master(struct agg_master *agg_master_par);
-extern struct  agg_table * alloc_agg_table(struct agg_master *agg_master_par);
-extern void destory_agg_table(struct agg_master *agg_master_par, struct agg_table *agg_table_par);
-extern struct agg_bitmap *alloc_agg_bitmap(struct agg_master *agg_master_par);
-extern void destory_agg_bitmap(struct agg_master *agg_master_par, struct agg_bitmap * agg_bitmap_par);
-extern void add_agg_bitmap(struct agg_table *agg_table_par, struct agg_bitmap *agg_bitmap_par);
-extern void add_agg_bitmap_tail(struct agg_table *agg_table_par, struct agg_bitmap *agg_bitmap_par);
-extern void remove_agg_bitmap(struct agg_table *agg_table_par, struct agg_bitmap *agg_bitmap_par);
-extern struct agg_bitmap *bmp_to_abmp(struct agg_master *agg_master_par, u_int32_t *bmp);
+extern void destory_agg_master(struct agg_master *agmp);
+extern struct  agg_table * alloc_agg_table(struct agg_master *agmp);
+extern void destory_agg_table(struct agg_master *agmp, struct agg_table *agtp);
+extern struct agg_bitmap *alloc_agg_bitmap(struct agg_master *agmp);
+extern void destory_agg_bitmap(struct agg_master *agmp, struct agg_bitmap * abmp);
+extern void add_agg_bitmap(struct agg_table *agtp, struct agg_bitmap *abmp);
+extern void add_agg_bitmap_tail(struct agg_table *agtp, struct agg_bitmap *abmp);
+extern void remove_agg_bitmap(struct agg_table *agtp, struct agg_bitmap *abmp);
+extern struct agg_bitmap *bmp_to_abmp(struct agg_master *agmp, u_int32_t *bmp);
 extern u_int32_t *abmp_to_bmp(struct agg_master * agmp, struct agg_bitmap *abmp, u_int32_t *bmp);
-extern struct agg_bitmap *abmp_or(struct agg_master *agg_master_par, struct agg_bitmap *abmp1, struct agg_bitmap *abmp2);
-extern s_int32_t abmp_equal( struct agg_master * agg_master_par, struct agg_bitmap *abmp1, struct agg_bitmap *abmp2);
-extern s_int32_t abmp_cmp(struct agg_master * agg_master_par, struct agg_bitmap *abmp1, struct agg_bitmap *abmp2);
-extern u_int32_t search_in_table(struct agg_master *agg_master_par, struct agg_table *agg_table_par, struct agg_bitmap *agg_bitmap_par);
-extern void debug_agg_bitmap(struct agg_master *agg_master_par, struct agg_bitmap *agg_bitmap_par);
-extern void debug_agg_table(struct agg_master *agg_master_par, struct agg_table *agg_table_par);
-extern void debug_agg_master(struct agg_master *agg_master_par);
+extern struct agg_bitmap *abmp_or(struct agg_master *agmp, struct agg_bitmap *abmp1, struct agg_bitmap *abmp2);
+extern s_int32_t abmp_equal( struct agg_master * agmp, struct agg_bitmap *abmp1, struct agg_bitmap *abmp2);
+extern s_int32_t abmp_cmp(struct agg_master * agmp, struct agg_bitmap *abmp1, struct agg_bitmap *abmp2);
+extern u_int32_t search_in_table(struct agg_master *agmp, struct agg_table *agtp, struct agg_bitmap *abmp);
+extern void debug_agg_bitmap(struct agg_master *agmp, struct agg_bitmap *abmp);
+extern void debug_agg_table(struct agg_master *agmp, struct agg_table *agtp);
+extern void debug_agg_master(struct agg_master *agmp);
 
 
 
