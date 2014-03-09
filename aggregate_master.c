@@ -170,7 +170,7 @@ void remove_agg_bitmap(struct agg_table *agg_table_par, struct agg_bitmap *agg_b
  * @return ptr to the aggregated bitmap
  *
  */
-struct agg_bitmap *aggregated_bmp_convert(struct agg_master *agg_master_par, u_int32_t *bmp)
+struct agg_bitmap *bmp_to_abmp(struct agg_master *agg_master_par, u_int32_t *bmp)
 {
 	u_int32_t *p2;
 	u_int32_t *p3;
@@ -204,7 +204,7 @@ struct agg_bitmap *aggregated_bmp_convert(struct agg_master *agg_master_par, u_i
  * @param[in] abmp2 aggregated bitmap2
  * @return aggregated bitmap
  */
-struct agg_bitmap *aggregated_bmp_or(struct agg_master *agg_master_par, struct agg_bitmap *abmp1, struct agg_bitmap *abmp2)
+struct agg_bitmap *abmp_or(struct agg_master *agg_master_par, struct agg_bitmap *abmp1, struct agg_bitmap *abmp2)
 {
 	u_int32_t i,j;
 	u_int32_t *p12,*p13;
@@ -263,7 +263,7 @@ struct agg_bitmap *aggregated_bmp_or(struct agg_master *agg_master_par, struct a
  * @return 
  * @note this is faster then aggregated_bmp_cmp
  */
-s_int32_t aggregated_bmp_equal( struct agg_master * agg_master_par, struct agg_bitmap *abmp1, struct agg_bitmap *abmp2)
+s_int32_t abmp_equal( struct agg_master * agg_master_par, struct agg_bitmap *abmp1, struct agg_bitmap *abmp2)
 {
 	u_int32_t i,count, *p1, *p2;
 
@@ -289,7 +289,7 @@ s_int32_t aggregated_bmp_equal( struct agg_master * agg_master_par, struct agg_b
  *          -1 abmp1 <  abmp2
  *          0  abmp1 == abmp2
  */
-s_int32_t aggregated_bmp_cmp(struct agg_master * agg_master_par, struct agg_bitmap *abmp1, struct agg_bitmap *abmp2)
+s_int32_t abmp_cmp(struct agg_master * agg_master_par, struct agg_bitmap *abmp1, struct agg_bitmap *abmp2)
 {
 	u_int32_t i,count, *p1, *p2;
 	p1 = (u_int32_t*)(abmp1 + 1);
@@ -322,7 +322,7 @@ u_int32_t search_in_table(struct agg_master *agg_master_par, struct agg_table *a
         u_int32_t i = 0;
         list_for_each(pos, &agg_table_par->abmp_head){
             agg_bitmap_ptr = container_of(pos, struct agg_bitmap, abmp_link);
-            if(!aggregated_bmp_equal(agg_master_par, agg_bitmap_ptr, agg_bitmap_par)){
+            if(!abmp_equal(agg_master_par, agg_bitmap_ptr, agg_bitmap_par)){
                             return i;
             }
        }
@@ -338,7 +338,7 @@ u_int32_t search_in_table(struct agg_master *agg_master_par, struct agg_table *a
 void debug_agg_bitmap(struct agg_master *agg_master_par, struct agg_bitmap *agg_bitmap_par){
     u_int32_t i;
     u_int32_t *p;
-    fprintf(stderr, "agg_bitmap in 0x%x:\n", agg_bitmap_par);
+    fprintf(stderr, "agg_bitmap:");
     fprintf(stderr, "agg_bitmap->bmp_cnt: %u\n", agg_bitmap_par->bmp_cnt);
 
     p = (u_int32_t*)(agg_bitmap_par + 1);
@@ -368,7 +368,7 @@ void debug_agg_table(struct agg_master *agg_master_par, struct agg_table *agg_ta
         struct agg_bitmap *agg_bitmap_ptr;
         struct list_head  *pos;
         u_int32_t i = 0;
-        fprintf(stderr, "agg_table in 0x%x:\n", agg_table_par);
+        fprintf(stderr, "agg_table:");
         fprintf(stderr, "agg_table->abmp_cnt: %u\n", agg_table_par->abmp_cnt);
         fprintf(stderr, "abmp items:\n");
         list_for_each(pos, &agg_table_par->abmp_head){
@@ -387,7 +387,7 @@ void debug_agg_table(struct agg_master *agg_master_par, struct agg_table *agg_ta
  *
  */
 void debug_agg_master(struct agg_master *agg_master_par){
-        fprintf(stderr, "agg_master in 0x%x:\n",             agg_master_par);
+        fprintf(stderr, "agg_master:");
         fprintf(stderr, "agg_master->table_cnt: %u\n",       agg_master_par->table_cnt);
         fprintf(stderr, "agg_master->abmp_cnt: %u\n",        agg_master_par->abmp_cnt);
         fprintf(stderr, "agg_master->mem_cnt: %u\n",         agg_master_par->mem_cnt);

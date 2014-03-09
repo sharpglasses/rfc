@@ -69,10 +69,10 @@ extern void destory_agg_bitmap(struct agg_master *agg_master_par, struct agg_bit
 extern void add_agg_bitmap(struct agg_table *agg_table_par, struct agg_bitmap *agg_bitmap_par);
 extern void add_agg_bitmap_tail(struct agg_table *agg_table_par, struct agg_bitmap *agg_bitmap_par);
 extern void remove_agg_bitmap(struct agg_table *agg_table_par, struct agg_bitmap *agg_bitmap_par);
-extern struct agg_bitmap *aggregated_bmp_convert(struct agg_master *agg_master_par, u_int32_t *bmp);
-extern struct agg_bitmap *aggregated_bmp_or(struct agg_master *agg_master_par, struct agg_bitmap *abmp1, struct agg_bitmap *abmp2);
-extern s_int32_t aggregated_bmp_equal( struct agg_master * agg_master_par, struct agg_bitmap *abmp1, struct agg_bitmap *abmp2);
-extern s_int32_t aggregated_bmp_cmp(struct agg_master * agg_master_par, struct agg_bitmap *abmp1, struct agg_bitmap *abmp2);
+extern struct agg_bitmap *bmp_to_abmp(struct agg_master *agg_master_par, u_int32_t *bmp);
+extern struct agg_bitmap *abmp_or(struct agg_master *agg_master_par, struct agg_bitmap *abmp1, struct agg_bitmap *abmp2);
+extern s_int32_t abmp_equal( struct agg_master * agg_master_par, struct agg_bitmap *abmp1, struct agg_bitmap *abmp2);
+extern s_int32_t abmp_cmp(struct agg_master * agg_master_par, struct agg_bitmap *abmp1, struct agg_bitmap *abmp2);
 extern u_int32_t search_in_table(struct agg_master *agg_master_par, struct agg_table *agg_table_par, struct agg_bitmap *agg_bitmap_par);
 extern void debug_agg_bitmap(struct agg_master *agg_master_par, struct agg_bitmap *agg_bitmap_par);
 extern void debug_agg_table(struct agg_master *agg_master_par, struct agg_table *agg_table_par);
