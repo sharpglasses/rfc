@@ -50,7 +50,7 @@ s_int32_t rfc_read_rule(struct rfc* rfcp, void *con_code1, void *con_code2, u_in
  *        
  *
  */
-s_int32_t build_rfc(struct rfc *rfcp);
+s_int32_t rfc_build(struct rfc *rfcp);
 
 
 /**
