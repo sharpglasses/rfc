@@ -22,9 +22,9 @@ typedef unsigned char   u_int8_t;
 
 struct agg_bitmap{
     struct      list_head abmp_link;
-    u_int32_t   bmp_cnt;                    /** <bitmap tots **/
-    /*aggregate bitmap ....*/
-    /*bitmap    ...       */
+    u_int32_t   bmp_cnt;                    /** <bitmap tots      */
+                                            /** <aggregate bitmap */
+                                            /** <bitmap           */
 };
 
 #define ABMP_HEAD_SIZE        (sizeof(struct agg_bitmap))
@@ -42,18 +42,18 @@ struct agg_table{
 /* agg master*/
 struct agg_master{
     struct list_head table_head;
-    u_int32_t table_cnt;                      /**<tot table */
-    u_int32_t abmp_cnt;                       /**<to aggregated bitmap*/
-    u_int32_t mem_cnt;                        /**<tot mem*/              
+    u_int32_t table_cnt;                    /** <tot table            */
+    u_int32_t abmp_cnt;                     /** <to aggregated bitmap */
+    u_int32_t mem_cnt;                      /** <tot mem              */              
 
-    void *(*agg_alloc)(u_int32_t);             /**<ptr to alloc mem*/
-    void  (*agg_destory)(void *);              /**<ptr to free  mem*/
+    void *(*agg_alloc)(u_int32_t);          /** <ptr to alloc mem     */
+    void  (*agg_destory)(void *);           /** <ptr to free  mem     */
 
-    u_int32_t agg_bitmap_len;                
-    u_int32_t bitmap_len;                   
-    u_int32_t bit_len;     
+    u_int32_t agg_bitmap_len;               /** < aggregated bmp len(32bit/step) */ 
+    u_int32_t bitmap_len;                   /** < normal bitmap  len(32bit/step) */
+    u_int32_t bit_len;                      /** < bitmap len        (1bit/step)  */
 
-    struct agg_bitmap *mem;                                /**<tmp mem used to aggregated bitmap*/
+    struct agg_bitmap *mem;                 /** <tmp mem used for aggregated bitmap*/
 };
 
 #define ABMP_MASTER_SIZE    (sizeof(struct agg_master))
