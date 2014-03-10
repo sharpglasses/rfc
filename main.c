@@ -2,7 +2,7 @@
 
 #define CORE_CNT 1
 #define RULE_MAX 65535
-#define RULE_CNT 0
+#define RULE_CNT 20
 #define CON_SIZE  8
 #define VAL_SIZE 20
 #define BYT_SIZE 256
@@ -61,7 +61,7 @@ int main()
     }
     fprintf(stderr, "read all rule success\n\n");
     debug_rfc(rfcp);  
-    /*TODO 测试parse 接口正确性*/
+    /*TODO 测试parse 接口正确性
     param1 = (u_int8_t *)malloc(sizeof(u_int8_t)*CON_SIZE);
     param2 = (u_int8_t *)malloc(sizeof(u_int8_t)*CON_SIZE);
     param1[0] = 1;
@@ -88,5 +88,6 @@ int main()
     }
     debug_rfc(rfcp);  
     piece_parse_rule(PARSE_IDX, rfcp, rfcp->agmp, 0, 0, parse_callback);
+    */
     return 0;
 }

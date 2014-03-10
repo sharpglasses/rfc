@@ -41,6 +41,17 @@ struct agg_master *alloc_agmp(void *(*agg_alloc)(u_int32_t), void (*agg_destory)
 
 
 /**
+ * @brief destory mem in agmp
+ * @param[in] agmp ptr to the agg_master
+ * @return 
+ */
+void destory_agmp_mem(struct agg_master *agmp)
+{
+    agmp->agg_destory(agmp->mem);
+}
+
+
+/**
  * @brief destory_agmp
  * @param[in] agmp ptr to the agg_master
  * @return 
@@ -51,7 +62,9 @@ void destory_agmp(struct agg_master *agmp){
                 agg_table_ptr = container_of(agmp->table_head.next, struct agg_table, table_link);
                 destory_agtp(agmp, agg_table_ptr);
         }
-        agmp->agg_destory(agmp->mem);
+        if(agmp->mem){      /*可以在需要结构构建完成后将临时空间销毁并置为0*/
+            agmp->agg_destory(agmp->mem);
+        }
         agmp->agg_destory(agmp);
         agmp->mem_cnt -=  ABMP_HEAD_SIZE + 4*agmp->agg_bitmap_len + 4*agmp->bitmap_len;
         agmp->mem_cnt -=  ABMP_MASTER_SIZE;

@@ -16,7 +16,7 @@
 
 
 #define RFC_LIMIT             (~((u_int32_t)0))
-#define CBM_TABLE_LIMIT       (~((u_int16_t)0))
+#define CBM_TABLE_LIMIT       65535
 
 
 

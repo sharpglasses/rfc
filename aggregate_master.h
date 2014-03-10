@@ -51,6 +51,7 @@ struct agg_master{
 #define ABMP_MASTER_SIZE    (sizeof(struct agg_master))
 
 extern struct agg_master *alloc_agmp(void *(*agg_alloc)(u_int32_t), void (*agg_destory)(void *), u_int32_t bit_len);
+extern void destory_agmp_mem(struct agg_master *agmp);
 extern void destory_agmp(struct agg_master *agmp);
 extern struct  agg_table * alloc_agtp(struct agg_master *agmp);
 extern void destory_agtp(struct agg_master *agmp, struct agg_table *agtp);
@@ -66,8 +67,8 @@ extern struct agg_bitmap *abmp_or(struct agg_master *agmp, struct agg_bitmap *ab
 extern s_int32_t abmp_equal( struct agg_master * agmp, struct agg_bitmap *abmp1, struct agg_bitmap *abmp2);
 extern s_int32_t abmp_cmp(struct agg_master * agmp, struct agg_bitmap *abmp1, struct agg_bitmap *abmp2);
 extern u_int32_t search_abmp_in_table(struct agg_master *agmp, struct agg_table *agtp, struct agg_bitmap *abmp);
+extern void insert_sort_agtp(struct agg_master *agmp, struct agg_table *agtp);
 extern void debug_abmp(struct agg_master *agmp, struct agg_bitmap *abmp);
-void insert_sort_agtp(struct agg_master *agmp, struct agg_table *agtp);
 extern void debug_agtp(struct agg_master *agmp, struct agg_table *agtp);
 extern void debug_agmp(struct agg_master *agmp);
 

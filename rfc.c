@@ -36,10 +36,11 @@ struct rfc * alloc_rfc(u_int32_t rule_max, u_int32_t con_len, u_int32_t core_cnt
         rfcp->talloc   = talloc;
         rfcp->tdestory = tdestory;
 
-        rfcp->rbp = alloc_rbp(palloc, pdestory);
-        if(!rfcp->rbp){
+        rfcp->keyval_map  = (s_int32_t *)palloc(sizeof(s_int32_t) * rfcp->rule_cnt);
+        if(!rfcp->keyval_map){
             return 0;
         }
+        memset(rfcp->keyval_map, 0, sizeof(s_int32_t) * rfcp->rule_cnt);
 
         rfcp->entry  = (struct ces_entry *)palloc(sizeof(struct ces_entry) * rfcp->piece_cnt);
         if(!rfcp->entry){
@@ -73,9 +74,7 @@ s_int32_t rfc_read_rule(struct rfc* rfcp, void *con_code1, void *con_code2, u_in
 {
     rfcp->rule[rfcp->rule_cnt].con[0] = con_code1;
     rfcp->rule[rfcp->rule_cnt].con[1] = con_code2;
-    if(rbp_set(rfcp->rbp, rfcp->rule_cnt, val) < 0){  /*红黑树内存分配失败检查*/
-        return RFC_ERROR;
-    }
+    rfcp->keyval_map[rfcp->rule_cnt] = val;
     rfcp->rule_cnt++;
     return RFC_SUCCESS;
 }

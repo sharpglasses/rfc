@@ -4,11 +4,10 @@
  * @brief rfc parse condition code
  * @file rfc_parse.h
  * @author mhw
- * @date 2014/3/12
+ * @date 2014/3/13
  *
  */
 #include "rfc_structure.h"
-
 
 /**
  * @brief 遍历所有rule的某一个piece

@@ -30,12 +30,7 @@ void debug_rfc_read( struct rfc *rfcp){
     fprintf(stderr, "rule in store\n");
     fprintf(stderr, "all rules:\n");
     for(i = 0; i < rfcp->rule_cnt; i++){
-            node = rbp_search(rfcp->rbp, i);
-            if(!node){
-                fprintf(stderr, "error in find val from map based on red-black tree\n");
-                return;     
-            }
-            fprintf(stderr, "rule eqid %u : val %u\n",i, node->data);
+            fprintf(stderr, "rule eqid %u : val %u\n",i, rfcp->keyval_map[i]);
             debug_rule(rfcp, rfcp->rule + i);
     }
 };
