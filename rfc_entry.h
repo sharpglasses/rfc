@@ -8,6 +8,7 @@
  * @date 2014/3/13
  */
 #include "rfc_structure.h"
+u_int32_t agg_entry =  (65535 + 31u) >> 5;  /* 32bit/step */
 
 
 

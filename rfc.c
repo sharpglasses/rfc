@@ -1,4 +1,5 @@
 #include "rfc.h"
+#include "rfc_create.h"
 
 /**
  * @brief rfc manager
@@ -21,6 +22,7 @@
 struct rfc * alloc_rfc(u_int32_t rule_max, u_int32_t con_len, u_int32_t core_cnt, void * (*palloc)(u_int32_t),\
         void (*pdestory)(void *), void * (*talloc)(u_int32_t), void   (*tdestory)(void *))
 {
+        u_int32_t i;
         struct rfc *rfcp = (struct rfc*)palloc(sizeof(struct rfc));
         if(!rfcp){
             return 0;
@@ -42,11 +44,18 @@ struct rfc * alloc_rfc(u_int32_t rule_max, u_int32_t con_len, u_int32_t core_cnt
         }
         memset(rfcp->keyval_map, 0, sizeof(s_int32_t) * rfcp->rule_cnt);
 
-        rfcp->entry  = (struct ces_entry *)palloc(sizeof(struct ces_entry) * rfcp->piece_cnt);
+        rfcp->entry  = (struct ces_table **)palloc(sizeof(struct ces_table*) * rfcp->piece_cnt);
         if(!rfcp->entry){
             return 0;
         }
-        memset(rfcp->entry, 0, sizeof(struct ces_entry) * rfcp->piece_cnt);
+        memset(rfcp->entry, 0, sizeof(struct ces_entry*) * rfcp->piece_cnt);
+
+        for(i = 0; i < rfcp->piece_cnt; i++){
+            rfcp->entry[i] = alloc_ces_table(rfcp, CBM_TABLE_LIMIT);
+            if(!rfcp->entry[i]){
+                return 0;
+            }
+        }
 
         rfcp->rule      = (struct rfc_rule *)talloc(sizeof(struct rfc_rule)*rule_max);
         if(!rfcp->rule){

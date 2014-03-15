@@ -424,8 +424,7 @@ s_int32_t abmp_cmp(struct agg_master *agmp, struct agg_bitmap *abmp1, struct agg
  * @param[in] agmp ptr to the agg_table 
  * @param[in] agtp ptr to the agg_table 
  * @param[in] abmp ptr to the agg_bitmap
- * return ~((u_int32_t)0)  not found
- * return idx in agtp
+ * return 
  */
 u_int32_t search_abmp_in_table(struct agg_master *agmp, struct agg_table *agtp, struct agg_bitmap *abmp){
         struct agg_bitmap *abmp_tmp;
@@ -438,7 +437,7 @@ u_int32_t search_abmp_in_table(struct agg_master *agmp, struct agg_table *agtp, 
             }
             i++;
        }
-       return ~((u_int32_t)0);
+       return agtp->abmp_cnt;
 }
 
 

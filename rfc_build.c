@@ -17,6 +17,7 @@
  * @return rfc_build
  *
  */
+/*
 struct rfc_build *init_rfc_build(struct rfc_mem *rfc_mem_param, struct rfc_bitmap *rfc_bitmap_param, struct rfc_parse *rfc_parse_param)
 {
     struct rfc_build *ret_rfc_build = (struct rfc_build *)rfc_mem_param->talloc(sizeof(struct rfc_build));
@@ -50,13 +51,16 @@ rfc_build_fail:
     return 0;
 }
 
-
+*/
 
 /**
  * @brief init destory  build element
  * @param[in] rfc_build_param     rfc_build manager
  * @return
  */
+
+
+/*
 s_int32_t deinit_rfc_build(struct rfc_build *rfc_build_param)
 {
     rfc_build_param->rfc_mem_manager->tfree(rfc_build_param->slot_table_manager->valid);
@@ -64,7 +68,7 @@ s_int32_t deinit_rfc_build(struct rfc_build *rfc_build_param)
     rfc_build_param->rfc_mem_manager->tfree(rfc_build_param);
     return 0;
 }
-
+*/
 
 /**
  * @brief callback for parse rules in graph mode and build ces, set flag for phase0
@@ -73,6 +77,8 @@ s_int32_t deinit_rfc_build(struct rfc_build *rfc_build_param)
  * @param[in] arg ptr to eqid
  * @return
  */
+
+/*
 s_int32_t rfc_graph_phase0_callback(struct rfc_build *rfc_build_param, u_int32_t col, u_int16_t val, u_int32_t eqid, void *arg1, void *arg2){
     //struct rfc_mem          *mem_manager       = NULL;
     //struct rfc_bitmap       *bitmap_manager    = NULL;
@@ -86,10 +92,10 @@ s_int32_t rfc_graph_phase0_callback(struct rfc_build *rfc_build_param, u_int32_t
     //slot_manager            = rfc_build_param->slot_table_manager;
 
     ces_table =   (struct ces_table *)slot_manager->valid[col];
-    ces_table->valid[val]   =  1;                                   /*set flag int ces table for phase1*/
+    ces_table->valid[val]   =  1;                                   
     return 0;
 }
-
+*/
 
 /**
  * @brief phase0 for build
@@ -129,18 +135,16 @@ s_int32_t rfc_graph_phase0(struct rfc_build *rfc_build_param, rfc_rule *rfc_rule
             }
             memset(ces_table_manager->valid, 0, sizeof(u_int32_t)*ces_table_manager->ces_cnt);
 
-            slot_manager->valid[col]      = (void*)ces_table_manager;       /*create org ces table */
+            slot_manager->valid[col]      = (void*)ces_table_manager;   
             slot_manager->slot_cnt++;
 
-            /*set flag for ces table*/
             if(col_parse_rule(rfc_rule_param, rfc_build_param, col, 0, rfc_bitmap->rule_nums - 1, NULL, NULL, rfc_graph_prepare_callback) < 0){
                 return -1;
             }
-            slot_manager->valid[col]      = (void*)ces_table_manager;       /*create org ces table */
+            slot_manager->valid[col]      = (void*)ces_table_manager;   
     }
     return 0;
 }
-
 
 /**
  * @brief phase1 for build
@@ -152,6 +156,7 @@ s_int32_t rfc_graph_phase0(struct rfc_build *rfc_build_param, rfc_rule *rfc_rule
  * @return
  * @note multi core  support here by col_start and col_end;
  */
+
 s_int32_t rfc_graph_phase1(struct rfc_build *rfc_build_param, rfc_rule *rfc_rule_param, u_int32_t col_start, u_int32_t col_end){
     u_int32_t               i, j, abmp_id;
     u_int32_t               *tcbm           = NULL;
@@ -176,7 +181,6 @@ s_int32_t rfc_graph_phase1(struct rfc_build *rfc_build_param, rfc_rule *rfc_rule
                 for(i = 0; i < ces_table_manager->ces_cnt; i++){
                         if(ces_table_manager->valid[i]){
                                 memset(tcbm, 0, sizeof(u_int32_t)*bitmap_manager->bitmap_len);
-                                /*build cbm_map*/
                                 if(col_parse_rule(rfc_rule_param, rfc_build_param, col, 0, bitmap_manager->rule_nums - 1, \
                                         (void *)&ces_entry_manager->key[i], (void *)tcbm, rfc_phase1_callback) < 0){
                                     return -1;
@@ -187,7 +191,7 @@ s_int32_t rfc_graph_phase1(struct rfc_build *rfc_build_param, rfc_rule *rfc_rule
                                 }
                                 abmp_id = search_cbm_table(rfc_bitmap_param, cbm_table_manager, 0, cbm_table_manager->cbm_cnt, abmp);
 
-                                if(abmp_id < 0){                  /*need new one */
+                                if(abmp_id < 0){                  
                                     if(cbm_table_manager->cbm_cnt >= 65535){
                                     return ph2_fail;    
                                 }
@@ -201,10 +205,9 @@ s_int32_t rfc_graph_phase1(struct rfc_build *rfc_build_param, rfc_rule *rfc_rule
                                 ces_table_manager->valid[i] = abmp_id;
                         }
                 }
-                ces_table_manager->next = (struct ces_table *)cbm_table_manager; /*ces table pointer to the cbm table before build*/
+                ces_table_manager->next = (struct ces_table *)cbm_table_manager; 
     }
 }
-
 /**
  * @brief callback for parse rules in graph mode and build cbm for phase1
  * @param[in] rfc_build_param build manager for this corea
@@ -213,16 +216,15 @@ s_int32_t rfc_graph_phase1(struct rfc_build *rfc_build_param, rfc_rule *rfc_rule
  * @param[in] arg ptr to eqid
  * @return
  */
+
 s_int32_t rfc_graph_phase1_callback(struct rfc_build *rfc_build_param, u_int32_t col, u_int16_t val, u_int32_t eqid, void *arg1, void *arg2){
     key                     = *((u_int32_t *)arg1);
     tbmp                 = *((u_int32_t *)arg2);
     if(val == key){
-        /*set pos in bitmap*/
         tcbm + (eqid>>5) |=(u_int32_t)(1<<(eqid&0x1f));
     }
     return 0;
 }
-
 
 struct phase2_element rfc_graph_phase2_add( struct rfc_build *rfc_build_param, struct phase2_element ph2_lft,  struct phase2_element ph2_rht)
 {

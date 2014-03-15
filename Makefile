@@ -1,6 +1,6 @@
 all:main
 
-main:aggregate_master.o main.o lst_map.o rb_map.o  rfc.o rfc_debug.o rfc_parse.o
+main:aggregate_master.o main.o lst_map.o rb_map.o  rfc.o rfc_debug.o rfc_parse.o rfc_create.o
 	gcc $^ -o $@ -g
 %.o:%.c
 	gcc -c $^ -g
