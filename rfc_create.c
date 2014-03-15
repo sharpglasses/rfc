@@ -170,11 +170,34 @@ s_int32_t rfc_build_prepare(struct rfc *rfcp, struct agg_master *agmp, u_int32_t
  * @param[in] agmp ptr for the agg_master
  * @param[in] begin_pidx begin index for piece
  * @param[in] end_pidx end index for piece
- * @return
+ * @return phase2_link
  */
-s_int32_t phase2_build(struct rfc *rfcp, struct agg_master *agmp, u_int32_t begin_pidx, u_int32_t end_pidx){
-
-
+struct phase2_link phase2_build(struct rfc *rfcp, struct agg_master *agmp, u_int32_t begin_pidx, u_int32_t end_pidx){
+    struct phase2_link ph2_ret;
+    struct phase2_link ph2_lft;
+    struct phase2_link ph2_rht;
+    ph2_ret.cetp = 0;   /*set flag*/
+    u_int32_t pidx;
+    if(begin_pidx = end_pidx){
+            ph2_ret.cetp = rfcp->entry[begin_pidx];      
+            ph2_ret.agtp = (struct agg_table *)ph2_ret.cetp->next;      
+            return ph2_ret;
+    }
+    pidx = (begin_pidx + end_pidx)/2;
+    ph2_lft = phase2_build(rfcp, agmp, begin_pidx, pidx);
+    ph2_rht = phase2_build(rfcp, agmp, pidx, end_pidx);
+    if(0 == ph2_lft.cetp && 0 == ph2_rht.cetp){
+        return ph2_ret;
+    }
+    //ph2_ret = phase2_add(rfcp, agmp, &ph2_lft, &ph2_rht);
+    if(0 == ph2_ret.cetp){
+        return ph2_ret;
+    }
 }
+
+
+
+
+
 
 
