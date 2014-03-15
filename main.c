@@ -79,7 +79,6 @@ int main()
     param1[6] = 1;
     param1[7] = 1;
 
-
     param2[0] = 1;
     param2[1] = 1;
     param2[2] = 9;

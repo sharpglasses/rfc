@@ -12,6 +12,8 @@
 
 s_int32_t phase0_callback(struct rfc *rfcp, struct parse_info *pinfo, void *input, void *output);
 s_int32_t phase1_callback(struct rfc *rfcp, struct parse_info *pinfo, void *input, void *output);
+struct phase2_link phase2_add(struct rfc *rfcp, struct agg_master *agmp, struct phase2_link *ph2_lft, struct phase2_link *ph2_rht);
+
 /**
  * @brief alloc ces_table
  * @param[in] rfcp struct rfc 
@@ -131,6 +133,9 @@ s_int32_t phase1_build(struct rfc *rfcp, struct agg_master *agmp, u_int32_t pidx
             }
             eqid = search_abmp_in_table(agmp, agtp, abmp);
             if( agtp->abmp_cnt == eqid){      /*not found*/
+                if(eqid >= CBM_TABLE_LIMIT){
+                    return -1;
+                }
                 abmp  = alloc_abmp(agmp);
                 if(!abmp){
                     return -1;
@@ -193,10 +198,70 @@ struct phase2_link phase2_build(struct rfc *rfcp, struct agg_master *agmp, u_int
     if(0 == ph2_ret.cetp){
         return ph2_ret;
     }
+    destory_agtp(agmp, ph2_lft.agtp);
+    destory_agtp(agmp, ph2_rht.agtp);
+    ph2_lft.cetp->next = ph2_ret.cetp;
+    ph2_rht.cetp->next = ph2_ret.cetp;
 }
 
 
-
+/**
+ * @brief build phase2
+ * @param[in] rfc   rfc manager ptr
+ * @param[in] agmp ptr for the agg_master
+ * @param[in] ph2_lft ptr to phase_link based on
+ * @param[in] ph2_rht ptr to phase_link based on
+ * @return phase2_link
+ */
+struct phase2_link phase2_add(struct rfc *rfcp, struct agg_master *agmp, struct phase2_link *ph2_lft, struct phase2_link *ph2_rht)
+{
+    struct phase2_link ph2_ret; 
+    struct list_head  *pos_lft;
+    struct list_head  *pos_rht;
+    struct agg_bitmap *abmp_lft;
+    struct agg_bitmap *abmp_rht;
+    struct agg_bitmap *abmp;
+    struct agg_table *agtp;
+    struct ces_table *cetp;
+    u_int32_t ces_cnt;
+    u_int32_t i, j;
+    ph2_ret.cetp = 0;
+    u_int32_t eqid;
+    ces_cnt = ph2_lft->cetp->cbm_cnt * ph2_rht->cetp->cbm_cnt;
+    cetp = alloc_ces_table(rfcp, ces_cnt);
+    if(0 == cetp){
+        return ph2_ret;
+    }
+    agtp = alloc_agtp(agmp);
+    if(0 == agtp){
+        return ph2_ret;
+    }
+    i = 0, j = 0;
+    list_for_each(pos_lft, &ph2_lft->agtp->abmp_head){
+        list_for_each(pos_rht, &ph2_rht->agtp->abmp_head){
+            abmp_lft = container_of(pos_lft, struct agg_bitmap, abmp_link);
+            abmp_rht = container_of(pos_rht, struct agg_bitmap, abmp_link);
+            abmp     = abmp_and(agmp, abmp_lft, abmp_rht);
+            eqid = search_abmp_in_table(agmp, agtp, abmp);
+            if( agtp->abmp_cnt == eqid){      /*not found*/
+                if(eqid >= CBM_TABLE_LIMIT){
+                    return ph2_ret;
+                }
+                abmp  = alloc_abmp(agmp);
+                if(!abmp){
+                    return ph2_ret;
+                }
+                add_abmp_tail(agtp, abmp);
+            }
+            cetp->table[i] = eqid;
+            j++;
+        }
+        i++;
+    }
+    ph2_ret.cetp = cetp;
+    ph2_ret.agtp = agtp;
+    return ph2_ret;
+}
 
 
 

@@ -18,7 +18,7 @@ struct rfc_rule{
 
 struct ces_table{
     u_int16_t cbm_cnt;
-    u_int16_t        *table; 
+    u_int16_t *table; 
     struct ces_table *next;  
     /*1.in phase0 and phase1  as ptr to cbm_table   
      *2.then convert as ptr to ces table*/

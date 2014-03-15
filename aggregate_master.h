@@ -5,7 +5,6 @@
  * @file  aggregate_master.h
  * @author mhw
  * @date 2014/3/11
- * @TODO 使用平衡二叉树代替链式结构管理table
  *
  */
 
@@ -49,6 +48,8 @@ struct agg_master{
 };
 
 #define ABMP_MASTER_SIZE    (sizeof(struct agg_master))
+
+
 
 extern struct agg_master *alloc_agmp(void *(*agg_alloc)(u_int32_t), void (*agg_destory)(void *), u_int32_t bit_len);
 extern void destory_agmp_mem(struct agg_master *agmp);
