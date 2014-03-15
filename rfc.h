@@ -11,6 +11,7 @@
 #include "rfc_structure.h"
 #include "rfc_debug.h"
 #include "rfc_parse.h"
+#include "rfc_create.h"
 
 
 /**

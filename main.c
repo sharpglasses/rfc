@@ -26,11 +26,13 @@ int main()
     u_int32_t val;
 
     struct rfc *rfcp;
+    struct agg_master *agmp;            
     rfcp  = alloc_rfc(RULE_MAX, CON_SIZE, CORE_CNT, malloc, free, malloc, free);             /*alloc rfc*/
     if(!rfcp){              
         fprintf(stderr, "create rfc fail\n");
         return -1;
     }
+
     srand(time(NULL));
     for(i = 0; i < RULE_CNT; i++){
                 param1 = (u_int8_t *)malloc(sizeof(u_int8_t)*CON_SIZE);
@@ -61,6 +63,11 @@ int main()
     }
     fprintf(stderr, "read all rule success\n\n");
     debug_rfc(rfcp);  
+    agmp = alloc_agmp(malloc, free, rfcp->rule_cnt);
+    if(!agmp){
+        fprintf(stderr, "alloc agmp fail\n\n");
+        return -1;
+    }
     /*TODO 测试parse 接口正确性
     param1 = (u_int8_t *)malloc(sizeof(u_int8_t)*CON_SIZE);
     param2 = (u_int8_t *)malloc(sizeof(u_int8_t)*CON_SIZE);
@@ -89,5 +96,10 @@ int main()
     debug_rfc(rfcp);  
     piece_parse_rule(PARSE_IDX, rfcp, rfcp->agmp, 0, 0, parse_callback);
     */
+    if(rfc_build_prepare(rfcp, agmp, 0, rfcp->piece_cnt) < 0){
+        fprintf(stderr, "prepare fail\n");
+        return -1;
+    }
+    rfcp->tdestory(rfcp->rule);
     return 0;
 }

@@ -143,3 +143,22 @@ s_int32_t phase1_build(struct rfc *rfcp, struct agg_master *agmp, u_int32_t pidx
     return 0;
 }
 
+/**
+ * @brief build phase0 ~ phase1
+ * @param[in] rfc   rfc manager ptr
+ * @param[in] agmp ptr for the agg_master
+ * @param[in] begin_pidx begin index for piece
+ * @param[in] end_pidx end index for piece
+ * @return
+ */
+s_int32_t rfc_build_prepare(struct rfc *rfcp, struct agg_master *agmp, u_int32_t begin_pidx, u_int32_t end_pidx){
+    u_int32_t pidx;
+    for(pidx = begin_pidx; pidx <= end_pidx; pidx++){
+        if(phase0_build(rfcp, agmp, pidx) < 0){
+            return -1;
+        }
+        if(phase1_build(rfcp, agmp, pidx) < 0){
+            return -1;
+        }
+    }
+}
