@@ -10,6 +10,12 @@
  */
 #include "rfc_structure.h"
 
+
+struct phase2_link{
+    struct agg_table *agtp; /*aggregated cbm table*/
+    struct ces_table *cetp; /*ces table */ 
+};
+
 /**
  * @brief alloc ces_table
  * @param[in] rfcp struct rfc 
